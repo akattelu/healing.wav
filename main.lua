@@ -6,21 +6,26 @@ lick.reset = true
 lick.updateAllFiles = true
 lick.clearPackages = true
 
-local cl, skeletons, singleWave
+S = {}
 
 function love.load()
   local cleric = require "src.cleric"
   local skeleton = require "src.skeleton"
   local wave = require "src.wave"
+  local stats = require "src.stats"
 
-  cl = cleric("lpc/cleric/walk.png")
-  skeletons = {}
-  singleWave = wave(400, 300, 50)
+  S.cl = cleric("lpc/cleric/walk.png")
+  S.skeletons = {}
+  S.stats = stats.new()
+  S.wave = wave.new(S.cl:centerX(), S.cl:centerY(), S.stats,
+    "RIGHT"
+  )
+
   -- Set default filter mode for crisp pixel art
   love.graphics.setDefaultFilter("nearest", "nearest")
 
   -- Load cleric
-  cl:load()
+  S.cl:load()
 
   -- Initialize skeletons
   local screen_w, screen_h = love.window.getMode()
@@ -31,25 +36,24 @@ function love.load()
 
     local skele = skeleton("lpc/skeleton/walk.png", screen_w / 2, screen_h / 2, x, y)
     skele:load()
-    table.insert(skeletons, skele)
+    table.insert(S.skeletons, skele)
   end
 
-  -- Sample wave
-  singleWave:load()
+  S.wave:load()
 end
 
 function love.update(dt)
-  cl:update(dt)
-  for _, s in pairs(skeletons) do
+  S.cl:update(dt)
+  for _, s in pairs(S.skeletons) do
     s:update(dt)
   end
-  singleWave:update(dt)
+  S.wave:update(dt)
 end
 
 function love.draw()
-  love.graphics.draw(cl.sheet, cl:frame(), cl.x, cl.y)
-  for _, s in pairs(skeletons) do
+  love.graphics.draw(S.cl.sheet, S.cl:frame(), S.cl.x, S.cl.y)
+  for _, s in pairs(S.skeletons) do
     love.graphics.draw(s.sheet, s:frame(), s.x, s.y)
   end
-  singleWave:draw()
+  S.wave:draw()
 end

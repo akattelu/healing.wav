@@ -14,17 +14,22 @@ local Direction = {
 
 
 --- Wave class
-return function(cx, cy, r)
+local wave = function(cx, cy, stats, direction)
   return {
-    -- Arc sizes
-    segments = 90,
+    -- Arc positioning
     cx = cx,
     cy = cy,
-    radius = r,
+    direction = direction,
+
+    -- Stat-based parameters
+    stats = stats,
+    wavelength = stats.wavelength,
+    extensionDuration = stats.range,
 
     -- Animation constants
-    extensionDuration = 0.5,
     currentTimer = 0,
+    radius = 64, -- Ring start pos away from character center
+    segments = 90,
 
     --- Load
     load = function(self)
@@ -36,17 +41,22 @@ return function(cx, cy, r)
       self.radius = self.radius + 1
       self.currentTimer = self.currentTimer + dt
       if (self.currentTimer > self.extensionDuration) then
-        self.radius = 0
-
-        -- Temporary
-        self.radius = 50
-        self.currentTimer = 0
+        self.radius = 64
+        self.currentTimer = -1 * self.stats.period -- "Cooldown" mechanism
       end
     end,
 
     --- Draw
     draw = function(self)
-      love.graphics.arc("line", "open", self.cx, self.cy, self.radius, Direction.RIGHT, Direction.UP, self.segments)
+      local arcStart = Direction[self.direction] - (self.wavelength / 2)
+      local arcEnd = Direction[self.direction] + (self.wavelength / 2)
+      love.graphics.arc("line", "open", self.cx, self.cy, self.radius, arcStart, arcEnd,
+        self.segments)
     end
   }
 end
+
+return {
+  direction = Direction,
+  new = wave
+}

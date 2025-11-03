@@ -88,6 +88,16 @@ return function(spritePath)
     --- Get current frame quad
     frame = function(self)
       return self.frames[self.direction][self.currentFrame]
+    end,
+
+    --- CX
+    centerX = function(self)
+      return self.x + (self.frameWidth / 2)
+    end,
+
+    --- CY
+    centerY = function(self)
+      return self.y + (self.frameHeight / 2)
     end
   }
 end
