@@ -1,6 +1,6 @@
 local dbg = require "src.dbg"
 
-
+--- Direction of wave expansion
 local Direction = {
   RIGHT = math.pi * 0 / 4,
   RIGHTDOWN = math.pi * 1 / 4,
@@ -12,6 +12,8 @@ local Direction = {
   UPRIGHT = math.pi * 7 / 4
 }
 
+
+--- Wave class
 return function(cx, cy, r)
   return {
     -- Arc sizes
@@ -24,10 +26,12 @@ return function(cx, cy, r)
     extensionDuration = 0.5,
     currentTimer = 0,
 
+    --- Load
     load = function(self)
 
     end,
 
+    --- Update
     update = function(self, dt)
       self.radius = self.radius + 1
       self.currentTimer = self.currentTimer + dt
@@ -40,6 +44,7 @@ return function(cx, cy, r)
       end
     end,
 
+    --- Draw
     draw = function(self)
       love.graphics.arc("line", "open", self.cx, self.cy, self.radius, Direction.RIGHT, Direction.UP, self.segments)
     end

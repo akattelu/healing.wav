@@ -1,15 +1,21 @@
 --- @class love
 local love = require "love"
 local dbg = require "src.dbg"
-local cleric = require "src.cleric"
-local skeleton = require "src.skeleton"
-local wave = require "src.wave"
+local lick = require "lick" -- hot reloading
+lick.reset = true
+lick.updateAllFiles = true
+lick.clearPackages = true
 
-local cl = cleric("lpc/cleric/walk.png")
-local skeletons = {}
-local singleWave = wave(400, 300, 50)
+local cl, skeletons, singleWave
 
 function love.load()
+  local cleric = require "src.cleric"
+  local skeleton = require "src.skeleton"
+  local wave = require "src.wave"
+
+  cl = cleric("lpc/cleric/walk.png")
+  skeletons = {}
+  singleWave = wave(400, 300, 50)
   -- Set default filter mode for crisp pixel art
   love.graphics.setDefaultFilter("nearest", "nearest")
 
