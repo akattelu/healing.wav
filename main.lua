@@ -3,9 +3,11 @@ local love = require "love"
 local dbg = require "src.dbg"
 local cleric = require "src.cleric"
 local skeleton = require "src.skeleton"
+local wave = require "src.wave"
 
 local cl = cleric("lpc/cleric/walk.png")
 local skeletons = {}
+local singleWave = wave(400, 300, 50)
 
 function love.load()
   -- Set default filter mode for crisp pixel art
@@ -25,6 +27,9 @@ function love.load()
     skele:load()
     table.insert(skeletons, skele)
   end
+
+  -- Sample wave
+  singleWave:load()
 end
 
 function love.update(dt)
@@ -32,6 +37,7 @@ function love.update(dt)
   for _, s in pairs(skeletons) do
     s:update(dt)
   end
+  singleWave:update(dt)
 end
 
 function love.draw()
@@ -39,4 +45,5 @@ function love.draw()
   for _, s in pairs(skeletons) do
     love.graphics.draw(s.sheet, s:frame(), s.x, s.y)
   end
+  singleWave:draw()
 end
