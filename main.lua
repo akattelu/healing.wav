@@ -17,7 +17,7 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.draw(cl.sheet, cl:frame(), 64, 64)
+  love.graphics.draw(cl.sheet, cl:frame(), cl.x, cl.y)
 end
 
 function love.keypressed(key)
