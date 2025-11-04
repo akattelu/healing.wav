@@ -22,61 +22,68 @@ local BASE_RADIUS = 64
 
 
 --- Wave class
-local wave = function(cx, cy, stats, direction)
-  return {
+local wave = function(stats, player)
+  local cx = player:centerX()
+  local cy = player:centerY()
+  local Wave = {
     -- Arc positioning
-    cx = cx,
-    cy = cy,
-    direction = direction,
-    mode = ExtensionMode.COOLDOWN,
+    cx                = cx,
+    cy                = cy,
+    direction         = "DOWN",
+    mode              = ExtensionMode.COOLDOWN,
+    player            = player,
 
     -- Stat-based parameters
-    stats = stats,
-    wavelength = stats.wavelength,
+    stats             = stats,
+    wavelength        = stats.wavelength,
     extensionDuration = stats.range,
-    cooldown = stats.period,
-    expansionSpeed = stats.frequency,
+    cooldown          = stats.period,
+    expansionSpeed    = stats.frequency,
 
     -- Animation constants
-    currentTimer = 0,
-    radius = BASE_RADIUS, -- Ring start pos away from character center
-    segments = DEFAULT_SEGMENTS,
-
-    --- Load
-    load = function(self)
-
-    end,
-
-    --- Update
-    update = function(self, dt)
-      if (self.mode == ExtensionMode.EXTENDING) then
-        self.currentTimer = self.currentTimer + dt
-        self.radius = self.radius + self.expansionSpeed
-        if (self.currentTimer > self.extensionDuration) then
-          self.currentTimer = self.currentTimer - self.extensionDuration
-          self.mode = ExtensionMode.COOLDOWN
-        end
-      else -- cooldown
-        self.currentTimer = self.currentTimer + dt
-        if (self.currentTimer > self.cooldown) then
-          self.currentTimer = self.currentTimer - self.cooldown
-          self.mode = ExtensionMode.EXTENDING
-          self.radius = BASE_RADIUS
-        end
-      end
-    end,
-
-    --- Draw
-    draw = function(self)
-      if (self.mode == ExtensionMode.COOLDOWN) then
-        return
-      end
-      local arcStart = Direction[self.direction] - (self.wavelength / 2)
-      local arcEnd = Direction[self.direction] + (self.wavelength / 2)
-      love.graphics.arc("line", "open", self.cx, self.cy, self.radius, arcStart, arcEnd,
-        self.segments)
-    end
+    currentTimer      = 0,
+    radius            = BASE_RADIUS, -- Ring start pos away from character center
+    segments          = DEFAULT_SEGMENTS,
   }
+
+  function Wave.load(self)
+
+  end
+
+  function Wave.update(self, dt)
+    self.currentTimer = self.currentTimer + dt
+
+    if (self.mode == ExtensionMode.EXTENDING) then
+      self.radius = self.radius + self.expansionSpeed
+      if (self.currentTimer > self.extensionDuration) then
+        self.currentTimer = self.currentTimer - self.extensionDuration
+        self.mode = ExtensionMode.COOLDOWN
+      end
+    else -- cooldown
+      if (self.currentTimer > self.cooldown) then
+        -- Reset into extension mode
+        self.currentTimer = self.currentTimer - self.cooldown
+        self.mode = ExtensionMode.EXTENDING
+        self.radius = BASE_RADIUS
+
+        self.cx = self.player:centerX()
+        self.cy = self.player:centerY()
+      end
+    end
+  end
+
+  function Wave.draw(self)
+    if (self.mode == ExtensionMode.COOLDOWN) then
+      return
+    end
+    -- dbg.printTable(self)
+    local arcStart = Direction[self.direction] - (self.wavelength / 2)
+    local arcEnd = Direction[self.direction] + (self.wavelength / 2)
+    love.graphics.arc("line", "open", self.cx, self.cy, self.radius, arcStart, arcEnd,
+      self.segments)
+  end
+
+  return Wave
 end
 
 return {

@@ -1,5 +1,3 @@
-local dbg = require "src.dbg"
-
 --- Direction Enum
 local Direction = {
   UP = 1,
@@ -30,8 +28,9 @@ return function(spritePath)
     x = 0,
     y = 0,
     speed = 200,
-    direction = Direction.IDLE,
-
+    directionX = Direction.IDLE,
+    directionY = Direction.IDLE,
+    spriteDirection = Direction.IDLE,
     -- Animation constants
     frameTimer = 0,
     frameDuration = 0.1,
@@ -57,20 +56,26 @@ return function(spritePath)
       -- Direction and movement management
       if love.keyboard.isDown("up", "w") then
         self.y = self.y - self.speed * dt
-        self.direction = Direction.UP
+        self.directionY = Direction.UP
+        self.spriteDirection = Direction.UP
       elseif love.keyboard.isDown("down", "s") then
         self.y = self.y + self.speed * dt
-        self.direction = Direction.DOWN
+        self.directionY = Direction.DOWN
+        self.spriteDirection = Direction.DOWN
       end
       if love.keyboard.isDown("left", "a") then
         self.x = self.x - self.speed * dt
-        self.direction = Direction.LEFT
+        self.directionX = Direction.LEFT
+        self.spriteDirection = Direction.LEFT
       elseif love.keyboard.isDown("right", "d") then
         self.x = self.x + self.speed * dt
-        self.direction = Direction.RIGHT
+        self.directionX = Direction.RIGHT
+        self.spriteDirection = Direction.RIGHT
       end
       if not love.keyboard.isDown("left", "up", "down", "right", "w", "a", "s", "d") then
-        self.direction = Direction.IDLE
+        self.spriteDirection = Direction.IDLE
+        self.directionX = Direction.IDLE
+        self.directionY = Direction.IDLE
       end
 
       -- Frame timer loop
@@ -80,14 +85,14 @@ return function(spritePath)
         self.currentFrame = self.currentFrame + 1
       end
 
-      if self.currentFrame > #self.frames[self.direction] then
+      if self.currentFrame > #self.frames[self.spriteDirection] then
         self.currentFrame = 1
       end
     end,
 
     --- Get current frame quad
     frame = function(self)
-      return self.frames[self.direction][self.currentFrame]
+      return self.frames[self.spriteDirection][self.currentFrame]
     end,
 
     --- CX
@@ -98,6 +103,19 @@ return function(spritePath)
     --- CY
     centerY = function(self)
       return self.y + (self.frameHeight / 2)
+    end,
+
+    --- Get movement direction
+    --- Returns 1/0/-1 for right, down
+    getDirections = function(self)
+      local map = {
+        IDLE = 0,
+        RIGHT = 1,
+        LEFT = -1,
+        DOWN = 1,
+        UP = -1,
+      }
+      return map[self.directionX], map[self.directionY]
     end
   }
 end

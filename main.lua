@@ -17,9 +17,7 @@ function love.load()
   S.cl = cleric("lpc/cleric/walk.png")
   S.skeletons = {}
   S.stats = stats.new()
-  S.wave = wave.new(S.cl:centerX(), S.cl:centerY(), S.stats,
-    "RIGHT"
-  )
+  S.wave = wave.new(S.stats, S.cl)
 
   -- Set default filter mode for crisp pixel art
   love.graphics.setDefaultFilter("nearest", "nearest")
