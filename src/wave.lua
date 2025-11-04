@@ -9,7 +9,23 @@ local Direction = {
   LEFT = math.pi,
   LEFTUP = math.pi * 5 / 4,
   UP = math.pi * 6 / 4,
-  UPRIGHT = math.pi * 7 / 4
+  UPRIGHT = math.pi * 7 / 4,
+
+  fromHVTuple = function(h, v)
+    local idx = tostring(h) .. tostring(v)
+    local map = {
+      ["-1-1"] = "LEFTUP",
+      ["-10"] = "LEFT",
+      ["-11"] = "DOWNLEFT",
+      ["0-1"] = "UP",
+      ["00"] = "DOWN",
+      ["01"] = "DOWN",
+      ["1-1"] = "UPRIGHT",
+      ["10"] = "RIGHT",
+      ["11"] = "RIGHTDOWN",
+    }
+    return map[idx]
+  end,
 }
 
 local ExtensionMode = {
@@ -46,7 +62,7 @@ local wave = function(stats, player)
     segments          = DEFAULT_SEGMENTS,
   }
 
-  function Wave.load(self)
+  function Wave.load(_)
 
   end
 
@@ -68,6 +84,9 @@ local wave = function(stats, player)
 
         self.cx = self.player:centerX()
         self.cy = self.player:centerY()
+
+        local h, v = self.player:getDirections()
+        self.direction = Direction.fromHVTuple(h, v)
       end
     end
   end

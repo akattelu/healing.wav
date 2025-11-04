@@ -109,11 +109,11 @@ return function(spritePath)
     --- Returns 1/0/-1 for right, down
     getDirections = function(self)
       local map = {
-        IDLE = 0,
-        RIGHT = 1,
-        LEFT = -1,
-        DOWN = 1,
-        UP = -1,
+        [Direction.IDLE] = 0,
+        [Direction.RIGHT] = 1,
+        [Direction.LEFT] = -1,
+        [Direction.DOWN] = 1,
+        [Direction.UP] = -1,
       }
       return map[self.directionX], map[self.directionY]
     end
