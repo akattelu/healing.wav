@@ -12,6 +12,14 @@ local Direction = {
   UPRIGHT = math.pi * 7 / 4
 }
 
+local ExtensionMode = {
+  EXTENDING = 1,
+  COOLDOWN = 2,
+}
+
+local DEFAULT_SEGMENTS = 90
+local BASE_RADIUS = 64
+
 
 --- Wave class
 local wave = function(cx, cy, stats, direction)
@@ -20,16 +28,19 @@ local wave = function(cx, cy, stats, direction)
     cx = cx,
     cy = cy,
     direction = direction,
+    mode = ExtensionMode.COOLDOWN,
 
     -- Stat-based parameters
     stats = stats,
     wavelength = stats.wavelength,
     extensionDuration = stats.range,
+    cooldown = stats.period,
+    expansionSpeed = stats.frequency,
 
     -- Animation constants
     currentTimer = 0,
-    radius = 64, -- Ring start pos away from character center
-    segments = 90,
+    radius = BASE_RADIUS, -- Ring start pos away from character center
+    segments = DEFAULT_SEGMENTS,
 
     --- Load
     load = function(self)
@@ -38,16 +49,28 @@ local wave = function(cx, cy, stats, direction)
 
     --- Update
     update = function(self, dt)
-      self.radius = self.radius + 1
-      self.currentTimer = self.currentTimer + dt
-      if (self.currentTimer > self.extensionDuration) then
-        self.radius = 64
-        self.currentTimer = -1 * self.stats.period -- "Cooldown" mechanism
+      if (self.mode == ExtensionMode.EXTENDING) then
+        self.currentTimer = self.currentTimer + dt
+        self.radius = self.radius + self.expansionSpeed
+        if (self.currentTimer > self.extensionDuration) then
+          self.currentTimer = self.currentTimer - self.extensionDuration
+          self.mode = ExtensionMode.COOLDOWN
+        end
+      else -- cooldown
+        self.currentTimer = self.currentTimer + dt
+        if (self.currentTimer > self.cooldown) then
+          self.currentTimer = self.currentTimer - self.cooldown
+          self.mode = ExtensionMode.EXTENDING
+          self.radius = BASE_RADIUS
+        end
       end
     end,
 
     --- Draw
     draw = function(self)
+      if (self.mode == ExtensionMode.COOLDOWN) then
+        return
+      end
       local arcStart = Direction[self.direction] - (self.wavelength / 2)
       local arcEnd = Direction[self.direction] + (self.wavelength / 2)
       love.graphics.arc("line", "open", self.cx, self.cy, self.radius, arcStart, arcEnd,
