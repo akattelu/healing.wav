@@ -1,4 +1,9 @@
 local dbg = require "src.lib.dbg"
+local tween = require "src.lib.tween"
+
+local DEFAULT_SEGMENTS = 90
+local BASE_RADIUS = 64
+
 
 --- Direction of wave expansion
 local Direction = {
@@ -33,10 +38,6 @@ local ExtensionMode = {
   COOLDOWN = 2,
 }
 
-local DEFAULT_SEGMENTS = 90
-local BASE_RADIUS = 64
-
-
 --- Wave class
 local wave = function(stats, player)
   local cx = player:centerX()
@@ -69,22 +70,26 @@ local wave = function(stats, player)
   function Wave.update(self, dt)
     self.currentTimer = self.currentTimer + dt
 
-    if (self.mode == ExtensionMode.EXTENDING) then
-      self.radius = self.radius + self.expansionSpeed
-      if (self.currentTimer > self.extensionDuration) then
+    if (self.mode == ExtensionMode.EXTENDING) then -- Extension
+      self.radius = tween.cubic(self.stats.range * self.stats.frequency, self.currentTimer, self.stats.range)
+      print(self.currentTimer)
+      if (self.currentTimer > self.extensionDuration) then -- Reset to cooldown
         self.currentTimer = self.currentTimer - self.extensionDuration
         self.mode = ExtensionMode.COOLDOWN
       end
-    else -- cooldown
+    else -- Cooldown
       if (self.currentTimer > self.cooldown) then
         -- Reset into extension mode
         self.currentTimer = self.currentTimer - self.cooldown
         self.mode = ExtensionMode.EXTENDING
-        self.radius = BASE_RADIUS
+        -- Reset to t=0
+        self.radius = tween.cubic(self.stats.range * self.stats.frequency, 0, self.stats.range)
 
+        -- Reassign center based on stored player reference
         self.cx = self.player:centerX()
         self.cy = self.player:centerY()
 
+        -- Pick a wave direction based on how the player is moving
         local h, v = self.player:getDirections()
         self.direction = Direction.fromHVTuple(h, v)
       end
@@ -92,10 +97,12 @@ local wave = function(stats, player)
   end
 
   function Wave.draw(self)
+    -- Hide wave on cooldown
     if (self.mode == ExtensionMode.COOLDOWN) then
       return
     end
 
+    -- Draw arc
     local arcStart = Direction[self.direction] - (self.wavelength / 2)
     local arcEnd = Direction[self.direction] + (self.wavelength / 2)
     love.graphics.arc("line", "open", self.cx, self.cy, self.radius, arcStart, arcEnd,
