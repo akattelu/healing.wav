@@ -1,4 +1,66 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # healingwave
 
-healingwave is a 2d game written in love2d in lua
+healingwave is a 2D game written in Lua using the LÖVE2D framework. The player controls a cleric character that emits healing waves to fend off approaching skeletons.
 
+## Running the Game
+
+```bash
+# Run the game
+love .
+
+# Hot reloading is enabled via lick (vendor/lick.lua)
+# Changes to .lua files will automatically reload the game
+```
+
+## Project Structure
+
+### Architecture Overview
+
+The game uses a simple entity-component architecture:
+
+- **main.lua**: Entry point with LÖVE lifecycle callbacks (load, update, draw). Uses a global `S` table to store game state
+- **conf.lua**: LÖVE window configuration (1280x1024, vsync enabled)
+- **src/entity/**: Game entities (cleric, skeleton, wave) - each entity is a factory function returning a table with load/update/draw methods
+- **src/lib/**: Utility libraries for stats, tweening, and debugging
+- **vendor/**: Third-party libraries (lick for hot reloading)
+
+### Key Game Mechanics
+
+**Wave System** (src/entity/wave.lua):
+- Waves are directional arcs that emanate from the cleric
+- Wave direction is determined by player movement (8 directions + down default)
+- Waves have two modes: EXTENDING (visible arc expanding) and COOLDOWN (hidden)
+- Wave behavior is driven by stats (wavelength, range, frequency, period)
+- Uses cubic easing for smooth expansion animation (see src/lib/tween.lua)
+
+**Stats System** (src/lib/stats.lua):
+Wave properties are defined through stat metaphors:
+- `amplitude`: Damage dealt
+- `wavelength`: Arc length (in radians)
+- `frequency`: Speed of expansion
+- `period`: Cooldown duration between waves
+- `range`: Duration of wave extension
+
+**Entity Pattern**:
+Both cleric and skeleton use the same sprite animation pattern:
+- Factory functions that return tables with methods
+- Direction enum (UP, LEFT, DOWN, RIGHT, IDLE)
+- Frame-based sprite animation with configurable frameDuration
+- 64x64 pixel sprite frames loaded from sprite sheets
+
+**Coordinate System**:
+- Cleric tracks separate directionX/directionY for movement
+- Wave positioning uses centerX() and centerY() methods
+- Direction angles use radians with 0 = RIGHT, π/2 = DOWN, etc.
+
+## Code Conventions
+
+- Use factory functions (not classes) that return tables with methods
+- Methods use `function(self)` or `function Table.method(self)` syntax
+- Global game state stored in `S` table (S.cl, S.skeletons, S.wave, S.stats)
+- LÖVE uses "nearest" filter mode for pixel art rendering
+- Entity lifecycle: load() for initialization, update(dt) for logic, draw() for rendering
