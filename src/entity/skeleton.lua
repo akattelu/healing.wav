@@ -1,4 +1,4 @@
-local dbg = require "src.dbg"
+local dbg = require "src.lib.dbg"
 
 --- Direction Enum
 local Direction = {

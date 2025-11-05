@@ -8,10 +8,10 @@ lick.clearPackages = true
 S = {}
 
 function love.load()
-  local cleric = require "src.cleric"
-  local skeleton = require "src.skeleton"
-  local wave = require "src.wave"
-  local stats = require "src.stats"
+  local cleric = require "src.entity.cleric"
+  local skeleton = require "src.entity.skeleton"
+  local wave = require "src.entity.wave"
+  local stats = require "src.lib.stats"
 
   S.cl = cleric("lpc/cleric/walk.png")
   S.skeletons = {}
