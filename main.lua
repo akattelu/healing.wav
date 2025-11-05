@@ -1,7 +1,6 @@
 --- @class love
 local love = require "love"
-local dbg = require "src.dbg"
-local lick = require "lick" -- hot reloading
+local lick = require "vendor.lick" -- hot reloading
 lick.reset = true
 lick.updateAllFiles = true
 lick.clearPackages = true

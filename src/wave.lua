@@ -95,7 +95,7 @@ local wave = function(stats, player)
     if (self.mode == ExtensionMode.COOLDOWN) then
       return
     end
-    -- dbg.printTable(self)
+
     local arcStart = Direction[self.direction] - (self.wavelength / 2)
     local arcEnd = Direction[self.direction] + (self.wavelength / 2)
     love.graphics.arc("line", "open", self.cx, self.cy, self.radius, arcStart, arcEnd,
