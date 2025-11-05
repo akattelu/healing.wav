@@ -11,12 +11,14 @@ function love.load()
   local cleric = require "src.entity.cleric"
   local skeleton = require "src.entity.skeleton"
   local wave = require "src.entity.wave"
+  local cursor_debug = require "src.entity.cursor_debug"
   local stats = require "src.lib.stats"
 
   S.cl = cleric("lpc/cleric/walk.png")
   S.skeletons = {}
   S.stats = stats.new()
   S.wave = wave.new(S.stats, S.cl)
+  S.cursor_debug = cursor_debug()
 
   -- Set default filter mode for crisp pixel art
   love.graphics.setDefaultFilter("nearest", "nearest")
@@ -53,4 +55,5 @@ function love.draw()
     love.graphics.draw(s.sheet, s:frame(), s.x, s.y)
   end
   S.wave:draw()
+  S.cursor_debug:draw()
 end
