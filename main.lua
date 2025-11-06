@@ -1,6 +1,9 @@
 --- @class love
 local love = require "love"
 local lick = require "vendor.lick" -- hot reloading
+local tbl = require "src.lib.table"
+
+-- Lick config
 lick.reset = true
 lick.updateAllFiles = true
 lick.clearPackages = true
@@ -50,13 +53,8 @@ function love.update(dt)
   local collidedSkeletons = S.wave:collisions(S.skeletons)
   for _, c in pairs(collidedSkeletons) do
     c:damage(S.stats.amplitude)
-    if (c.health:isDead()) then
-      -- remove skeleton from main map
-      for i, s in pairs(S.skeletons) do
-        if (s == c) then
-          table.remove(S.skeletons, i)
-        end
-      end
+    if (c.health:isDead()) then -- remove skeleton from main map
+      tbl.remove(S.skeletons, c)
     end
   end
 end
