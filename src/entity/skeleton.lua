@@ -1,5 +1,6 @@
 local dbg = require "src.lib.dbg"
-local health = require "src.entity.health";
+local health = require "src.entity.health"
+local sound = require "src.lib.sound"
 
 local HIT_DURATION = 0.5
 
@@ -48,6 +49,8 @@ return function(spritePath, destX, destY, startX, startY)
     hit = false, -- for rendering flash effect and hit markers
     hitTimer = 0,
 
+    -- Sound
+    hitSound = nil,
     --- Load
     load = function(self)
       self.sheet = love.graphics.newImage(self.spritePath)
@@ -62,6 +65,8 @@ return function(spritePath, destX, destY, startX, startY)
       end
       -- Default animation is facing down
       self.frames[Direction.IDLE] = { self.frames[Direction.DOWN][1] }
+
+      self.hitSound = sound.beep(800, 0.2)
     end,
 
     --- Update
@@ -107,6 +112,7 @@ return function(spritePath, destX, destY, startX, startY)
         if (self.hitTimer > HIT_DURATION) then
           self.hitTimer = 0
           self.hit = false
+          self.hitSound:stop()
         end
       end
     end,
@@ -133,6 +139,7 @@ return function(spritePath, destX, destY, startX, startY)
 
     damage = function(self, dmg)
       self.hit = true
+      self.hitSound:play()
     end
   }
 end
