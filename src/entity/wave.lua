@@ -3,7 +3,7 @@ local tween            = require "src.lib.tween"
 
 local DEFAULT_SEGMENTS = 90
 local BASE_RADIUS      = 64
-local NUM_LAYERS       = 300
+local NUM_LAYERS       = 100
 
 
 --- Direction of wave expansion
@@ -62,6 +62,9 @@ local wave = function(stats, player)
     currentTimer      = 0,
     radius            = BASE_RADIUS, -- Ring start pos away from character center
     segments          = DEFAULT_SEGMENTS,
+
+    -- Collisions
+    collidedSprites   = {},
   }
 
   function Wave.load(_)
@@ -76,8 +79,9 @@ local wave = function(stats, player)
       if (self.currentTimer > self.extensionDuration) then -- Reset to cooldown
         self.currentTimer = self.currentTimer - self.extensionDuration
         self.mode = ExtensionMode.COOLDOWN
+        self.collidedSprites = {} -- Reset this every expansion/cooldown cycle
       end
-    else -- Cooldown
+    else                          -- Cooldown
       if (self.currentTimer > self.cooldown) then
         -- Reset into extension mode
         self.currentTimer = self.currentTimer - self.cooldown
@@ -120,6 +124,7 @@ local wave = function(stats, player)
     local r, g, b = 1, 0.9, 0.55
 
     -- Draw multiple concentric arcs to create gradient effect
+    love.graphics.push("all")
     love.graphics.setLineWidth(2)
 
     for i = 0, NUM_LAYERS do
@@ -127,7 +132,7 @@ local wave = function(stats, player)
       local currentRadius = innerRadius + (thickness * t)
 
       -- Alpha gradient: 0.2 at inner edge, 1.0 at outer edge
-      local alpha = 0.2 + (0.8 * t)
+      local alpha = 0.0 + (0.8 * t)
 
       love.graphics.setColor(r, g, b, alpha)
       love.graphics.arc("line", "open", self.cx, self.cy, currentRadius, arcStart, arcEnd,
@@ -135,8 +140,88 @@ local wave = function(stats, player)
     end
 
     -- Reset color and line width
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setLineWidth(1)
+    love.graphics.pop()
+  end
+
+  function Wave.collisions(self, objects)
+    -- Skip collision detection if wave is not active
+    if self.mode == ExtensionMode.COOLDOWN then
+      return {}
+    end
+
+    local tickCollisions = {}
+    local arcStart = Direction[self.direction] - (self.wavelength / 2)
+    local arcEnd = Direction[self.direction] + (self.wavelength / 2)
+    local innerRadius = BASE_RADIUS
+    local outerRadius = self.radius
+
+    -- Helper function to check if a point is within the arc region
+    local function pointInArc(px, py)
+      -- Calculate distance from wave center
+      local dx = px - self.cx
+      local dy = py - self.cy
+      local distance = math.sqrt(dx * dx + dy * dy)
+
+      -- Check if distance is within arc's radial bounds
+      if distance < innerRadius or distance > outerRadius then
+        return false
+      end
+
+      -- Calculate angle from wave center to point
+      local angle = math.atan2(dy, dx)
+      if angle < 0 then
+        angle = angle + (2 * math.pi)
+      end
+
+      -- Normalize arc angles to [0, 2π]
+      local arcStartNorm = arcStart % (2 * math.pi)
+      local arcEndNorm = arcEnd % (2 * math.pi)
+
+      -- Handle wraparound case (e.g., arc crosses 0/2π boundary)
+      if arcStartNorm > arcEndNorm then
+        return angle >= arcStartNorm or angle <= arcEndNorm
+      else
+        return angle >= arcStartNorm and angle <= arcEndNorm
+      end
+    end
+
+    for _, o in pairs(objects) do
+      -- Skip if already collided this wave cycle
+      local alreadyCollided = false
+      for _, collided in pairs(self.collidedSprites) do
+        if collided == o then
+          alreadyCollided = true
+          break
+        end
+      end
+
+      if not alreadyCollided then
+        local x, y, w, h = o:getPosition()
+
+        -- Check all 4 corners of the bounding box
+        local corners = {
+          { x,     y },     -- Top-left
+          { x + w, y },     -- Top-right
+          { x,     y + h }, -- Bottom-left
+          { x + w, y + h }  -- Bottom-right
+        }
+
+        local collided = false
+        for _, corner in pairs(corners) do
+          if pointInArc(corner[1], corner[2]) then
+            collided = true
+            break
+          end
+        end
+
+        if collided then
+          table.insert(self.collidedSprites, o)
+          table.insert(tickCollisions, o)
+        end
+      end
+    end
+
+    return tickCollisions
   end
 
   return Wave

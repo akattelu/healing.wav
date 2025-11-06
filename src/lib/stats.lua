@@ -4,9 +4,9 @@ return {
         return {
           amplitude = 1,            -- Damage
           wavelength = math.pi / 2, -- Arc Length
-          frequency = 100,          -- Speed
-          period = 0.5,             -- Cooldown
-          range = 1.5,              -- Duration
+          frequency = 200,          -- Speed
+          period = 0.1,             -- Cooldown
+          range = 1,                -- Duration
         }
       end
 }

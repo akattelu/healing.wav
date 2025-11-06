@@ -47,6 +47,10 @@ function love.update(dt)
     s:update(dt)
   end
   S.wave:update(dt)
+  local collidedSkeletons = S.wave:collisions(S.skeletons)
+  for _, c in pairs(collidedSkeletons) do
+    c:damage(S.stats.amplitude)
+  end
 end
 
 function love.draw()

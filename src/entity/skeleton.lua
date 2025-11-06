@@ -1,6 +1,8 @@
 local dbg = require "src.lib.dbg"
 local health = require "src.entity.health";
 
+local HIT_DURATION = 0.5
+
 --- Direction Enum
 local Direction = {
   UP = 1,
@@ -43,6 +45,8 @@ return function(spritePath, destX, destY, startX, startY)
 
     -- Stats
     health = health.new(startX + 64, startY),
+    hit = false, -- for rendering flash effect and hit markers
+    hitTimer = 0,
 
     --- Load
     load = function(self)
@@ -97,6 +101,14 @@ return function(spritePath, destX, destY, startX, startY)
 
       -- Update health bar
       self.health:setTopLeft(self.x, self.y + self.frameHeight)
+
+      if (self.hit) then
+        self.hitTimer = self.hitTimer + dt
+        if (self.hitTimer > HIT_DURATION) then
+          self.hitTimer = 0
+          self.hit = false
+        end
+      end
     end,
 
     --- Get current frame quad
@@ -106,8 +118,21 @@ return function(spritePath, destX, destY, startX, startY)
 
 
     draw = function(self)
+      love.graphics.push("all")
+      if (self.hit) then
+        love.graphics.setColor(1, 1, 1, 0.5)
+      end
       love.graphics.draw(self.sheet, self:frame(), self.x, self.y)
       self.health:draw()
+      love.graphics.pop()
+    end,
+
+    getPosition = function(self)
+      return self.x, self.y, self.frameWidth, self.frameHeight
+    end,
+
+    damage = function(self, dmg)
+      self.hit = true
     end
   }
 end
