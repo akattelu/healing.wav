@@ -1,4 +1,5 @@
 local dbg = require "src.lib.dbg"
+local health = require "src.entity.health";
 
 --- Direction Enum
 local Direction = {
@@ -39,6 +40,9 @@ return function(spritePath, destX, destY, startX, startY)
     -- AI
     destX = destX,
     destY = destY,
+
+    -- Stats
+    health = health.new(startX + 64, startY),
 
     --- Load
     load = function(self)
@@ -90,11 +94,20 @@ return function(spritePath, destX, destY, startX, startY)
       if self.currentFrame > #self.frames[self.direction] then
         self.currentFrame = 1
       end
+
+      -- Update health bar
+      self.health:setTopLeft(self.x, self.y + self.frameHeight)
     end,
 
     --- Get current frame quad
     frame = function(self)
       return self.frames[self.direction][self.currentFrame]
+    end,
+
+
+    draw = function(self)
+      love.graphics.draw(self.sheet, self:frame(), self.x, self.y)
+      self.health:draw()
     end
   }
 end

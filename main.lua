@@ -52,7 +52,7 @@ end
 function love.draw()
   love.graphics.draw(S.cl.sheet, S.cl:frame(), S.cl.x, S.cl.y)
   for _, s in pairs(S.skeletons) do
-    love.graphics.draw(s.sheet, s:frame(), s.x, s.y)
+    s:draw()
   end
   S.wave:draw()
   S.cursor_debug:draw()
