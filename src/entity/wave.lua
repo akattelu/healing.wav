@@ -1,8 +1,9 @@
-local dbg = require "src.lib.dbg"
-local tween = require "src.lib.tween"
+local dbg              = require "src.lib.dbg"
+local tween            = require "src.lib.tween"
 
 local DEFAULT_SEGMENTS = 90
-local BASE_RADIUS = 64
+local BASE_RADIUS      = 64
+local NUM_LAYERS       = 300
 
 
 --- Direction of wave expansion
@@ -102,11 +103,41 @@ local wave = function(stats, player)
       return
     end
 
-    -- Draw arc
+    -- Draw thickening arc with radial gradient
     local arcStart = Direction[self.direction] - (self.wavelength / 2)
     local arcEnd = Direction[self.direction] + (self.wavelength / 2)
-    love.graphics.arc("line", "open", self.cx, self.cy, self.radius, arcStart, arcEnd,
-      self.segments)
+
+    -- Inner edge stays fixed, outer edge expands
+    local innerRadius = BASE_RADIUS
+    local outerRadius = self.radius
+    local thickness = outerRadius - innerRadius
+
+    -- Only draw if there's thickness to render
+    if thickness <= 0 then
+      return
+    end
+
+    -- Golden yellow sunlight color
+    local r, g, b = 1, 0.9, 0.55
+
+    -- Draw multiple concentric arcs to create gradient effect
+    love.graphics.setLineWidth(2)
+
+    for i = 0, NUM_LAYERS do
+      local t = i / NUM_LAYERS
+      local currentRadius = innerRadius + (thickness * t)
+
+      -- Alpha gradient: 0.2 at inner edge, 1.0 at outer edge
+      local alpha = 0.2 + (0.8 * t)
+
+      love.graphics.setColor(r, g, b, alpha)
+      love.graphics.arc("line", "open", self.cx, self.cy, currentRadius, arcStart, arcEnd,
+        self.segments)
+    end
+
+    -- Reset color and line width
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setLineWidth(1)
   end
 
   return Wave
