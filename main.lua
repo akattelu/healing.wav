@@ -29,7 +29,7 @@ function love.load()
   -- Initialize skeletons
   local screen_w, screen_h = love.window.getMode()
 
-  for _ = 1, 100 do
+  for _ = 1, 20 do
     local x = love.math.random(0, screen_w)
     local y = love.math.random(0, screen_h)
 

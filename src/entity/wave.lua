@@ -71,9 +71,8 @@ local wave = function(stats, player)
   function Wave.update(self, dt)
     self.currentTimer = self.currentTimer + dt
 
-    if (self.mode == ExtensionMode.EXTENDING) then -- Extension
+    if (self.mode == ExtensionMode.EXTENDING) then         -- Extension
       self.radius = tween.cubic(self.stats.range * self.stats.frequency, self.currentTimer, self.stats.range)
-      print(self.currentTimer)
       if (self.currentTimer > self.extensionDuration) then -- Reset to cooldown
         self.currentTimer = self.currentTimer - self.extensionDuration
         self.mode = ExtensionMode.COOLDOWN

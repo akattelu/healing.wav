@@ -5,7 +5,7 @@ return {
   --- @return table
   new = function(tlx, tly)
     return {
-      health = 5,
+      health = 3,
       maxhealth = 5,
 
       -- Position
@@ -16,8 +16,18 @@ return {
 
       draw = function(self)
         love.graphics.push("all")
+
+        -- Draw green part
+        local greenWidth = self.w * (self.health / self.maxhealth)
         love.graphics.setColor(0, 255, 0, 1)
-        love.graphics.rectangle("fill", self.x + 16, self.y, self.w, self.h)
+        love.graphics.rectangle("fill", self.x + 16, self.y, greenWidth, self.h)
+
+        -- Draw red part
+        local redWidth = self.w * (1 - (self.health / self.maxhealth))
+        love.graphics.setColor(255, 0, 0, 1)
+        love.graphics.rectangle("fill", self.x + 16 + greenWidth, self.y, redWidth, self.h)
+
+        -- Draw black border
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.setLineWidth(3)
         love.graphics.rectangle("line", self.x + 16, self.y, self.w, self.h)

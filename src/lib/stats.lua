@@ -3,9 +3,9 @@ return {
       function()
         return {
           amplitude = 1,            -- Damage
-          wavelength = math.pi / 4, -- Arc Length
+          wavelength = math.pi / 2, -- Arc Length
           frequency = 100,          -- Speed
-          period = 1,               -- Cooldown
+          period = 0.5,             -- Cooldown
           range = 1.5,              -- Duration
         }
       end
