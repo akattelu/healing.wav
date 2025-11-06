@@ -50,6 +50,14 @@ function love.update(dt)
   local collidedSkeletons = S.wave:collisions(S.skeletons)
   for _, c in pairs(collidedSkeletons) do
     c:damage(S.stats.amplitude)
+    if (c.health:isDead()) then
+      -- remove skeleton from main map
+      for i, s in pairs(S.skeletons) do
+        if (s == c) then
+          table.remove(S.skeletons, i)
+        end
+      end
+    end
   end
 end
 

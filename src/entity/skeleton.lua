@@ -140,6 +140,7 @@ return function(spritePath, destX, destY, startX, startY)
     damage = function(self, dmg)
       self.hit = true
       self.hitSound:play()
+      self.health:damage(dmg)
     end
   }
 end

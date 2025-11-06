@@ -42,6 +42,13 @@ return {
       setTopLeft = function(self, x, y)
         self.x = x
         self.y = y
+      end,
+
+      damage = function(self, dmg)
+        self.health = self.health - dmg
+        if (self.health < 0) then
+          self.health = 0
+        end
       end
     }
   end
