@@ -14,6 +14,7 @@ function love.load()
   local settings = require "src.lib.settings"
   local titleScene = require "src.scene.title"
   local battleScene = require "src.scene.battle"
+  local creditsScene = require "src.scene.credits"
 
   -- Parse settings early so sound module can access it
   S.settings = settings.parse()
@@ -25,6 +26,7 @@ function love.load()
   S.sceneManager = scene.new()
   S.sceneManager:register("title", titleScene)
   S.sceneManager:register("battle", battleScene)
+  S.sceneManager:register("credits", creditsScene)
 
   -- Start with title screen
   S.sceneManager:switch("title")
