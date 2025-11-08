@@ -60,7 +60,7 @@ function love.load()
   for cornerIndex = 1, 4 do
     for _ = 1, 5 do
       local x, y = corners[cornerIndex]()
-      local skele = skeleton("lpc/skeleton/walk.png", screen_w / 2, screen_h / 2, x, y)
+      local skele = skeleton("lpc/skeleton/walk.png", S.cl, x, y)
       skele:load()
       table.insert(S.skeletons, skele)
     end

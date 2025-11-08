@@ -14,7 +14,7 @@ local Direction = {
 }
 
 --- Skeleton core object
-return function(spritePath, destX, destY, startX, startY)
+return function(spritePath, player, startX, startY)
   return {
     -- Sprite metadata
     spritePath = spritePath,
@@ -41,8 +41,7 @@ return function(spritePath, destX, destY, startX, startY)
     frameDuration = 0.1,
 
     -- AI
-    destX = destX,
-    destY = destY,
+    player = player,
 
     -- Stats
     health = health.new(startX + 64, startY),
@@ -72,8 +71,10 @@ return function(spritePath, destX, destY, startX, startY)
     --- Update
     update = function(self, dt)
       -- Direction and movement management
-      local dx = self.x - self.destX
-      local dy = self.y - self.destY
+      local destX = self.player:centerX()
+      local destY = self.player:centerY()
+      local dx = self.x - destX
+      local dy = self.y - destY
 
       if dy > 0 then
         self.y = self.y - self.speed * dt
