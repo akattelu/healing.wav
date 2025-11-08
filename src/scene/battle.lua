@@ -10,30 +10,30 @@ function battle:spawnSkeletons()
   -- Clear existing skeletons
   self.skeletons = {}
 
-  -- Define corner spawn zones (just outside screen bounds)
-  local corners = {
-    -- Top-left
+  -- Define side spawn zones (just outside screen bounds)
+  local sides = {
+    -- Top side
     function()
-      return love.math.random(-80, -20), love.math.random(-80, -20)
+      return love.math.random(0, screen_w), love.math.random(-80, -20)
     end,
-    -- Top-right
+    -- Bottom side
     function()
-      return screen_w + love.math.random(20, 80), love.math.random(-80, -20)
+      return love.math.random(0, screen_w), screen_h + love.math.random(20, 80)
     end,
-    -- Bottom-left
+    -- Left side
     function()
-      return love.math.random(-80, -20), screen_h + love.math.random(20, 80)
+      return love.math.random(-80, -20), love.math.random(0, screen_h)
     end,
-    -- Bottom-right
+    -- Right side
     function()
-      return screen_w + love.math.random(20, 80), screen_h + love.math.random(20, 80)
+      return screen_w + love.math.random(20, 80), love.math.random(0, screen_h)
     end
   }
 
-  -- Spawn 5 skeletons from each corner (20 total)
-  for cornerIndex = 1, 4 do
+  -- Spawn 5 skeletons from each side (20 total)
+  for sideIndex = 1, 4 do
     for _ = 1, 5 do
-      local x, y = corners[cornerIndex]()
+      local x, y = sides[sideIndex]()
       local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y)
       skele:load()
       table.insert(self.skeletons, skele)
