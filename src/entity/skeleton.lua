@@ -138,6 +138,11 @@ return function(spritePath, player, startX, startY)
           self.hitSound:stop()
         end
       end
+
+      -- Stop sound immediately if sound is disabled
+      if not S.settings.soundEnabled and self.hitSound:isPlaying() then
+        self.hitSound:stop()
+      end
     end,
 
     --- Get current frame quad
@@ -162,7 +167,9 @@ return function(spritePath, player, startX, startY)
 
     damage = function(self, dmg)
       self.hit = true
-      self.hitSound:play()
+      if S.settings.soundEnabled then
+        self.hitSound:play()
+      end
       self.health:damage(dmg)
     end
   }

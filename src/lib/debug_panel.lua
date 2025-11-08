@@ -8,6 +8,11 @@ function debugPanel.new(stats)
     visible = true,
     stats = stats,
     controls = {},
+    soundCheckbox = {
+      x = 0, y = 0,
+      width = 20, height = 20,
+      hovered = false
+    },
 
     -- Current active tab (1=Base, 2=Multipliers, 3=Overview)
     activeTab = 1,
@@ -15,8 +20,8 @@ function debugPanel.new(stats)
     -- Panel layout
     x = 20,
     y = 20,
-    width = 360,
-    height = 250,
+    width = 380,
+    height = 320,
     padding = 10,
     controlSpacing = 30,
 
@@ -98,10 +103,22 @@ function debugPanel.new(stats)
 
   function panel:load()
     self:createControls()
+
+    -- Position sound checkbox in header area
+    self.soundCheckbox.x = self.x + self.width - 80
+    self.soundCheckbox.y = self.y + self.padding + 2
   end
 
   function panel:update(dt)
     if not self.visible then return end
+
+    -- Update checkbox hover state
+    local mx, my = love.mouse.getPosition()
+    self.soundCheckbox.hovered =
+      mx >= self.soundCheckbox.x and
+      mx <= self.soundCheckbox.x + self.soundCheckbox.width and
+      my >= self.soundCheckbox.y and
+      my <= self.soundCheckbox.y + self.soundCheckbox.height
 
     -- Update controls for active tab
     if self.activeTab == 1 then -- Base values
@@ -223,6 +240,34 @@ function debugPanel.new(stats)
     love.graphics.setColor(0.9, 0.9, 1)
     love.graphics.print("Debug Panel", self.x + self.padding, self.y + self.padding)
 
+    -- Draw sound toggle checkbox
+    local cb = self.soundCheckbox
+    -- Checkbox background
+    if cb.hovered then
+      love.graphics.setColor(0.3, 0.4, 0.5)
+    else
+      love.graphics.setColor(0.2, 0.3, 0.4)
+    end
+    love.graphics.rectangle("fill", cb.x, cb.y, cb.width, cb.height, 2, 2)
+
+    -- Checkbox border
+    love.graphics.setColor(0.5, 0.7, 0.9)
+    love.graphics.setLineWidth(1)
+    love.graphics.rectangle("line", cb.x, cb.y, cb.width, cb.height, 2, 2)
+
+    -- Checkmark if sound is enabled
+    if S.settings.soundEnabled then
+      love.graphics.setColor(0.3, 1, 0.3)
+      love.graphics.setLineWidth(2)
+      love.graphics.line(cb.x + 4, cb.y + 10, cb.x + 8, cb.y + 14)
+      love.graphics.line(cb.x + 8, cb.y + 14, cb.x + 16, cb.y + 6)
+    end
+
+    -- Checkbox label
+    love.graphics.setFont(self.smallFont)
+    love.graphics.setColor(0.9, 0.9, 0.9)
+    love.graphics.print("Sound", cb.x + cb.width + 5, cb.y + 5)
+
     -- Draw tabs
     self:drawTabs()
 
@@ -289,6 +334,14 @@ function debugPanel.new(stats)
 
   function panel:mousepressed(x, y, button)
     if not self.visible then return false end
+
+    -- Check sound checkbox click
+    local cb = self.soundCheckbox
+    if x >= cb.x and x <= cb.x + cb.width and
+       y >= cb.y and y <= cb.y + cb.height then
+      S.settings.soundEnabled = not S.settings.soundEnabled
+      return true
+    end
 
     -- Check tab clicks
     local tabWidth = self.width / 3

@@ -26,10 +26,8 @@ healingwave is a roguelike 2D game written in Lua using the LÖVE2D framework. T
 love .
 
 # With debug panel (D to toggle, R to reset, 1/2/3 to switch tabs)
+# The debug panel includes a sound toggle checkbox for runtime control
 love . --with-config-panel
-
-# Disable sound
-love . --no-sound
 
 # Hot reloading is enabled via lick (vendor/lick.lua)
 # Changes to .lua files will automatically reload the game
@@ -148,7 +146,8 @@ Objects must implement:
 - Entity lifecycle: load() for initialization, update(dt) for logic, draw() for rendering
 - Scene lifecycle: Same as entities - load(), update(dt), draw(), plus optional input handlers (keypressed, mousepressed, mousereleased)
 - Use love.graphics.push("all") / pop() for isolated graphics state changes
-- Settings are parsed via CLI args: `--no-sound`, `--with-config-panel`
+- Settings are parsed via CLI args: `--with-config-panel`
+- Sound is enabled by default and can be toggled at runtime via the debug panel checkbox
 
 ### Adding New Scenes
 
