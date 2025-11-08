@@ -36,6 +36,11 @@ return function(spritePath, player, startX, startY)
     speed = 20,
     direction = Direction.IDLE,
 
+    -- Velocity (for knockback)
+    velocityX = 0,
+    velocityY = 0,
+    friction = 5.0,
+
     -- Animation constants
     frameTimer = 0,
     frameDuration = 0.1,
@@ -70,6 +75,23 @@ return function(spritePath, player, startX, startY)
 
     --- Update
     update = function(self, dt)
+      -- Apply velocity (knockback) with friction decay
+      if self.velocityX ~= 0 or self.velocityY ~= 0 then
+        -- Apply velocity to position
+        self.x = self.x + self.velocityX * dt
+        self.y = self.y + self.velocityY * dt
+
+        -- Apply friction (decay velocity over time)
+        local decay = 1 - self.friction * dt
+        if decay < 0 then decay = 0 end
+        self.velocityX = self.velocityX * decay
+        self.velocityY = self.velocityY * decay
+
+        -- Stop very small velocities to prevent floating point drift
+        if math.abs(self.velocityX) < 0.1 then self.velocityX = 0 end
+        if math.abs(self.velocityY) < 0.1 then self.velocityY = 0 end
+      end
+
       -- Direction and movement management
       local destX = self.player:centerX()
       local destY = self.player:centerY()

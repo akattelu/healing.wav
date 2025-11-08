@@ -97,6 +97,7 @@ Wave properties and player attributes are defined through stat metaphors:
 - `period`: Cooldown duration between waves (base: 0.1s) - inverse upgrade (lower is better)
 - `range`: Duration of wave extension (base: 1s)
 - `movementSpeed`: Player movement speed (base: 200)
+- `knockback`: Knockback impulse strength (base: 150)
 
 Each stat has:
 - Base value (set in stats.lua or debug panel)

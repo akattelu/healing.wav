@@ -85,6 +85,27 @@ function battle:update(dt)
   local collidedSkeletons = self.wave:collisions(self.skeletons)
   for _, c in pairs(collidedSkeletons) do
     c:damage(self.stats:getValue("amplitude"))
+
+    -- Apply knockback impulse
+    local waveCenterX = self.wave.cx
+    local waveCenterY = self.wave.cy
+    local skeletonCenterX = c.x + c.frameWidth / 2
+    local skeletonCenterY = c.y + c.frameHeight / 2
+
+    -- Calculate direction vector (skeleton relative to wave center)
+    local dx = skeletonCenterX - waveCenterX
+    local dy = skeletonCenterY - waveCenterY
+
+    -- Normalize and apply knockback
+    local distance = math.sqrt(dx * dx + dy * dy)
+    if distance > 0 then
+      dx = dx / distance
+      dy = dy / distance
+      local knockbackForce = self.stats:getValue("knockback")
+      c.velocityX = c.velocityX + dx * knockbackForce
+      c.velocityY = c.velocityY + dy * knockbackForce
+    end
+
     if (c.health:isDead()) then -- remove skeleton from main map
       tbl.remove(self.skeletons, c)
     end

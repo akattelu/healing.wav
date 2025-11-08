@@ -9,6 +9,7 @@ function stats.new()
     period = 0.1,             -- Cooldown
     range = 1,                -- Duration
     movementSpeed = 200,      -- Player movement speed
+    knockback = 150,          -- Knockback impulse strength
 
     -- Multipliers for percentage-based upgrades (1.0 = base, 1.2 = 20% increase)
     multipliers = {
@@ -18,6 +19,7 @@ function stats.new()
       period = 1.0,
       range = 1.0,
       movementSpeed = 1.0,
+      knockback = 1.0,
     }
   }
 
