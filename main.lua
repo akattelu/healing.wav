@@ -32,13 +32,34 @@ function love.load()
   -- Initialize skeletons
   local screen_w, screen_h = love.window.getMode()
 
-  for _ = 1, 20 do
-    local x = love.math.random(0, screen_w)
-    local y = love.math.random(0, screen_h)
+  -- Define corner spawn zones (just outside screen bounds)
+  local corners = {
+    -- Top-left
+    function()
+      return love.math.random(-80, -20), love.math.random(-80, -20)
+    end,
+    -- Top-right
+    function()
+      return screen_w + love.math.random(20, 80), love.math.random(-80, -20)
+    end,
+    -- Bottom-left
+    function()
+      return love.math.random(-80, -20), screen_h + love.math.random(20, 80)
+    end,
+    -- Bottom-right
+    function()
+      return screen_w + love.math.random(20, 80), screen_h + love.math.random(20, 80)
+    end
+  }
 
-    local skele = skeleton("lpc/skeleton/walk.png", screen_w / 2, screen_h / 2, x, y)
-    skele:load()
-    table.insert(S.skeletons, skele)
+  -- Spawn 5 skeletons from each corner (20 total)
+  for cornerIndex = 1, 4 do
+    for _ = 1, 5 do
+      local x, y = corners[cornerIndex]()
+      local skele = skeleton("lpc/skeleton/walk.png", screen_w / 2, screen_h / 2, x, y)
+      skele:load()
+      table.insert(S.skeletons, skele)
+    end
   end
 
   S.wave:load()
