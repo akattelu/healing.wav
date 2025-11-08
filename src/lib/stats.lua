@@ -38,6 +38,30 @@ function stats.new()
     return baseValue * multiplier
   end
 
+  -- Method to set base value directly (for debug panel)
+  function s:setBaseValue(statName, value)
+    if self[statName] ~= nil then
+      self[statName] = value
+    end
+  end
+
+  -- Method to set multiplier directly (for debug panel)
+  function s:setMultiplier(statName, value)
+    if self.multipliers[statName] then
+      self.multipliers[statName] = value
+    end
+  end
+
+  -- Method to get base value
+  function s:getBaseValue(statName)
+    return self[statName]
+  end
+
+  -- Method to get multiplier
+  function s:getMultiplier(statName)
+    return self.multipliers[statName] or 1.0
+  end
+
   return s
 end
 

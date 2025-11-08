@@ -60,6 +60,13 @@ function battle:load()
   self.wave = wave.new(self.stats, self.cl)
   self.cursor_debug = cursor_debug()
 
+  -- Load debug panel if enabled
+  if S.settings.debugPanelEnabled then
+    local debugPanel = require "src.lib.debug_panel"
+    self.debugPanel = debugPanel.new(self.stats)
+    self.debugPanel:load()
+  end
+
   -- Load cleric
   self.cl:load()
 
@@ -83,6 +90,11 @@ function battle:update(dt)
     end
   end
 
+  -- Update debug panel if enabled
+  if self.debugPanel then
+    self.debugPanel:update(dt)
+  end
+
   -- Check for wave completion (all skeletons defeated)
   if #self.skeletons == 0 then
     if S.currentWave < 10 then
@@ -102,6 +114,36 @@ function battle:draw()
   end
   self.wave:draw()
   self.cursor_debug:draw()
+
+  -- Draw debug panel on top of everything
+  if self.debugPanel then
+    self.debugPanel:draw()
+  end
+end
+
+function battle:keypressed(key)
+  -- Handle debug panel input
+  if self.debugPanel then
+    if self.debugPanel:keypressed(key) then
+      return
+    end
+  end
+end
+
+function battle:mousepressed(x, y, button)
+  -- Handle debug panel input
+  if self.debugPanel then
+    if self.debugPanel:mousepressed(x, y, button) then
+      return
+    end
+  end
+end
+
+function battle:mousereleased(x, y, button)
+  -- Handle debug panel input
+  if self.debugPanel then
+    self.debugPanel:mousereleased(x, y, button)
+  end
 end
 
 return battle

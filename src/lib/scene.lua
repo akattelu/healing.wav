@@ -59,6 +59,14 @@ function scene.new()
     end
   end
 
+  function manager:mousereleased(x, y, button)
+    ---@diagnostic disable-next-line: undefined-field
+    if self.current and self.current.mousereleased then
+      ---@diagnostic disable-next-line: undefined-field
+      self.current:mousereleased(x, y, button)
+    end
+  end
+
   return manager
 end
 

@@ -55,6 +55,10 @@ function love.mousepressed(x, y, button)
   S.sceneManager:mousepressed(x, y, button)
 end
 
+function love.mousereleased(x, y, button)
+  S.sceneManager:mousereleased(x, y, button)
+end
+
 function love.keypressed(key)
   S.sceneManager:keypressed(key)
 end
