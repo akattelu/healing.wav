@@ -3,31 +3,12 @@ local tbl = require "src.lib.table"
 
 local battle = {}
 
-function battle:load()
-  local settings = require "src.lib.settings"
-  local cleric = require "src.entity.cleric"
+function battle:spawnSkeletons()
   local skeleton = require "src.entity.skeleton"
-  local wave = require "src.entity.wave"
-  local cursor_debug = require "src.entity.cursor_debug"
-  local stats = require "src.lib.stats"
-
-  -- Parse settings early so sound module can access it
-  if not S.settings then
-    S.settings = settings.parse()
-  end
-
-  -- Initialize battle state
-  self.cl = cleric("lpc/cleric/walk.png")
-  self.skeletons = {}
-  self.stats = stats.new()
-  self.wave = wave.new(self.stats, self.cl)
-  self.cursor_debug = cursor_debug()
-
-  -- Load cleric
-  self.cl:load()
-
-  -- Initialize skeletons
   local screen_w, screen_h = love.window.getMode()
+
+  -- Clear existing skeletons
+  self.skeletons = {}
 
   -- Define corner spawn zones (just outside screen bounds)
   local corners = {
@@ -58,6 +39,32 @@ function battle:load()
       table.insert(self.skeletons, skele)
     end
   end
+end
+
+function battle:load()
+  local settings = require "src.lib.settings"
+  local cleric = require "src.entity.cleric"
+  local wave = require "src.entity.wave"
+  local cursor_debug = require "src.entity.cursor_debug"
+  local stats = require "src.lib.stats"
+
+  -- Parse settings early so sound module can access it
+  if not S.settings then
+    S.settings = settings.parse()
+  end
+
+  -- Initialize battle state
+  self.cl = cleric("lpc/cleric/walk.png")
+  self.skeletons = {}
+  self.stats = stats.new()
+  self.wave = wave.new(self.stats, self.cl)
+  self.cursor_debug = cursor_debug()
+
+  -- Load cleric
+  self.cl:load()
+
+  -- Spawn skeletons for this wave
+  self:spawnSkeletons()
 
   self.wave:load()
 end
@@ -73,6 +80,18 @@ function battle:update(dt)
     c:damage(self.stats.amplitude)
     if (c.health:isDead()) then -- remove skeleton from main map
       tbl.remove(self.skeletons, c)
+    end
+  end
+
+  -- Check for wave completion (all skeletons defeated)
+  if #self.skeletons == 0 then
+    if S.currentWave < 10 then
+      -- Progress to next wave
+      S.currentWave = S.currentWave + 1
+      S.sceneManager:switch("wave_intro")
+    else
+      -- Player has completed all 10 waves - go to credits
+      S.sceneManager:switch("credits")
     end
   end
 end

@@ -89,8 +89,9 @@ end
 function title:mousepressed(x, y, button)
   if button == 1 then
     if self.playButton.hovered then
-      -- Switch to battle scene
-      S.sceneManager:switch("battle")
+      -- Reset wave counter and switch to wave intro scene
+      S.currentWave = 1
+      S.sceneManager:switch("wave_intro")
     elseif self.creditsButton.hovered then
       -- Switch to credits scene
       S.sceneManager:switch("credits")

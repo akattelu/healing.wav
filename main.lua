@@ -15,6 +15,7 @@ function love.load()
   local titleScene = require "src.scene.title"
   local battleScene = require "src.scene.battle"
   local creditsScene = require "src.scene.credits"
+  local waveIntroScene = require "src.scene.wave_intro"
 
   -- Parse settings early so sound module can access it
   S.settings = settings.parse()
@@ -22,11 +23,15 @@ function love.load()
   -- Set default filter mode for crisp pixel art
   love.graphics.setDefaultFilter("nearest", "nearest")
 
+  -- Initialize wave tracking
+  S.currentWave = 1
+
   -- Initialize scene manager
   S.sceneManager = scene.new()
   S.sceneManager:register("title", titleScene)
   S.sceneManager:register("battle", battleScene)
   S.sceneManager:register("credits", creditsScene)
+  S.sceneManager:register("wave_intro", waveIntroScene)
 
   -- Start with title screen
   S.sceneManager:switch("title")
