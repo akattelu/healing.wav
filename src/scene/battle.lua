@@ -1,0 +1,89 @@
+-- Battle scene - main gameplay
+local tbl = require "src.lib.table"
+
+local battle = {}
+
+function battle:load()
+  local settings = require "src.lib.settings"
+  local cleric = require "src.entity.cleric"
+  local skeleton = require "src.entity.skeleton"
+  local wave = require "src.entity.wave"
+  local cursor_debug = require "src.entity.cursor_debug"
+  local stats = require "src.lib.stats"
+
+  -- Parse settings early so sound module can access it
+  if not S.settings then
+    S.settings = settings.parse()
+  end
+
+  -- Initialize battle state
+  self.cl = cleric("lpc/cleric/walk.png")
+  self.skeletons = {}
+  self.stats = stats.new()
+  self.wave = wave.new(self.stats, self.cl)
+  self.cursor_debug = cursor_debug()
+
+  -- Load cleric
+  self.cl:load()
+
+  -- Initialize skeletons
+  local screen_w, screen_h = love.window.getMode()
+
+  -- Define corner spawn zones (just outside screen bounds)
+  local corners = {
+    -- Top-left
+    function()
+      return love.math.random(-80, -20), love.math.random(-80, -20)
+    end,
+    -- Top-right
+    function()
+      return screen_w + love.math.random(20, 80), love.math.random(-80, -20)
+    end,
+    -- Bottom-left
+    function()
+      return love.math.random(-80, -20), screen_h + love.math.random(20, 80)
+    end,
+    -- Bottom-right
+    function()
+      return screen_w + love.math.random(20, 80), screen_h + love.math.random(20, 80)
+    end
+  }
+
+  -- Spawn 5 skeletons from each corner (20 total)
+  for cornerIndex = 1, 4 do
+    for _ = 1, 5 do
+      local x, y = corners[cornerIndex]()
+      local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y)
+      skele:load()
+      table.insert(self.skeletons, skele)
+    end
+  end
+
+  self.wave:load()
+end
+
+function battle:update(dt)
+  self.cl:update(dt)
+  for _, s in pairs(self.skeletons) do
+    s:update(dt)
+  end
+  self.wave:update(dt)
+  local collidedSkeletons = self.wave:collisions(self.skeletons)
+  for _, c in pairs(collidedSkeletons) do
+    c:damage(self.stats.amplitude)
+    if (c.health:isDead()) then -- remove skeleton from main map
+      tbl.remove(self.skeletons, c)
+    end
+  end
+end
+
+function battle:draw()
+  love.graphics.draw(self.cl.sheet, self.cl:frame(), self.cl.x, self.cl.y)
+  for _, s in pairs(self.skeletons) do
+    s:draw()
+  end
+  self.wave:draw()
+  self.cursor_debug:draw()
+end
+
+return battle
