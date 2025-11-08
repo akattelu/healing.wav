@@ -36,10 +36,10 @@ function title:update(dt)
   local mx, my = love.mouse.getPosition()
 
   self.playButton.hovered = mx >= self.playButton.x and mx <= self.playButton.x + self.playButton.width
-                        and my >= self.playButton.y and my <= self.playButton.y + self.playButton.height
+      and my >= self.playButton.y and my <= self.playButton.y + self.playButton.height
 
   self.creditsButton.hovered = mx >= self.creditsButton.x and mx <= self.creditsButton.x + self.creditsButton.width
-                           and my >= self.creditsButton.y and my <= self.creditsButton.y + self.creditsButton.height
+      and my >= self.creditsButton.y and my <= self.creditsButton.y + self.creditsButton.height
 end
 
 function title:draw()

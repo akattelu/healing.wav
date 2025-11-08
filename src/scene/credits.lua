@@ -37,16 +37,16 @@ function credits:draw()
   -- Draw back button
   love.graphics.setColor(0.3, 0.3, 0.4, 1)
   love.graphics.rectangle("fill", self.backButton.x, self.backButton.y,
-                         self.backButton.width, self.backButton.height, 8, 8)
+    self.backButton.width, self.backButton.height, 8, 8)
   love.graphics.setColor(1, 1, 1, 1)
   love.graphics.rectangle("line", self.backButton.x, self.backButton.y,
-                         self.backButton.width, self.backButton.height, 8, 8)
+    self.backButton.width, self.backButton.height, 8, 8)
 
   local buttonTextWidth = love.graphics.getFont():getWidth(self.backButton.text)
   local buttonTextHeight = love.graphics.getFont():getHeight()
   love.graphics.print(self.backButton.text,
-                     self.backButton.x + (self.backButton.width - buttonTextWidth) / 2,
-                     self.backButton.y + (self.backButton.height - buttonTextHeight) / 2)
+    self.backButton.x + (self.backButton.width - buttonTextWidth) / 2,
+    self.backButton.y + (self.backButton.height - buttonTextHeight) / 2)
 
   -- Title
   love.graphics.setColor(1, 1, 1, 1)
@@ -131,7 +131,7 @@ function credits:mousepressed(x, y, button)
   if button == 1 then
     -- Check back button
     if x >= self.backButton.x and x <= self.backButton.x + self.backButton.width and
-       y >= self.backButton.y and y <= self.backButton.y + self.backButton.height then
+        y >= self.backButton.y and y <= self.backButton.y + self.backButton.height then
       S.sceneManager:switch("title")
     end
   end

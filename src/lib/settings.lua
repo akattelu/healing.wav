@@ -1,7 +1,7 @@
 --- Parse command-line arguments and return game settings
 local function parseSettings()
   local settings = {
-    soundEnabled = true  -- Default: sound enabled
+    soundEnabled = true -- Default: sound enabled
   }
 
   -- Check command-line arguments for --no-sound flag

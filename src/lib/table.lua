@@ -1,6 +1,6 @@
 --- Remove item from table
 --- @param src table of items
---- @param item item to remove
+--- @param item any to remove
 local function remove(src, item)
   do
     for i, s in pairs(src) do
