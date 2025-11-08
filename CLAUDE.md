@@ -4,7 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # healingwave
 
-healingwave is a 2D game written in Lua using the LÖVE2D framework. The player controls a cleric character that emits healing waves to fend off approaching skeletons.
+healingwave is a roguelike 2D game written in Lua using the LÖVE2D framework. The player controls a cleric character that emits healing waves to survive 10 increasingly difficult waves of undead enemies.
+
+## Game Design
+
+**Core Loop**:
+- Survive 10 waves of skeleton enemies
+- Each wave features enemies with progressively more health
+- Between waves, select from power-ups or special abilities to enhance your character
+- Win condition: Successfully defeat all 10 waves
+
+**Progression System**:
+- Wave-based difficulty scaling through enemy health increases
+- Strategic character building through power-up selection
+- Roguelike elements: ability choices create unique builds each playthrough
 
 ## Running the Game
 
