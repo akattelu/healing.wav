@@ -46,6 +46,7 @@ function battle:load()
   local cleric = require "src.entity.cleric"
   local wave = require "src.entity.wave"
   local cursor_debug = require "src.entity.cursor_debug"
+  local pauseScene = require "src.scene.pause"
 
   -- Parse settings early so sound module can access it
   if not S.settings then
@@ -59,6 +60,21 @@ function battle:load()
   self.skeletons = {}
   self.wave = wave.new(self.stats, self.cl)
   self.cursor_debug = cursor_debug()
+
+  -- Initialize pause state and scene
+  self.paused = false
+  self.pauseScene = pauseScene
+  self.pauseScene:load(
+    function() -- Resume callback
+      self.paused = false
+    end,
+    function() -- Restart wave callback
+      self:load()
+    end,
+    function() -- Return to title callback
+      S.sceneManager:switch("title")
+    end
+  )
 
   -- Load debug panel if enabled
   if S.settings.debugPanelEnabled then
@@ -77,57 +93,65 @@ function battle:load()
 end
 
 function battle:update(dt)
-  self.cl:update(dt)
-  for _, s in pairs(self.skeletons) do
-    s:update(dt)
-  end
-  self.wave:update(dt)
-  local collidedSkeletons = self.wave:collisions(self.skeletons)
-  for _, c in pairs(collidedSkeletons) do
-    c:damage(self.stats:getValue("amplitude"))
+  -- Only update game logic when not paused
+  if not self.paused then
+    self.cl:update(dt)
+    for _, s in pairs(self.skeletons) do
+      s:update(dt)
+    end
+    self.wave:update(dt)
+    local collidedSkeletons = self.wave:collisions(self.skeletons)
+    for _, c in pairs(collidedSkeletons) do
+      c:damage(self.stats:getValue("amplitude"))
 
-    -- Apply knockback impulse
-    local waveCenterX = self.wave.cx
-    local waveCenterY = self.wave.cy
-    local skeletonCenterX = c.x + c.frameWidth / 2
-    local skeletonCenterY = c.y + c.frameHeight / 2
+      -- Apply knockback impulse
+      local waveCenterX = self.wave.cx
+      local waveCenterY = self.wave.cy
+      local skeletonCenterX = c.x + c.frameWidth / 2
+      local skeletonCenterY = c.y + c.frameHeight / 2
 
-    -- Calculate direction vector (skeleton relative to wave center)
-    local dx = skeletonCenterX - waveCenterX
-    local dy = skeletonCenterY - waveCenterY
+      -- Calculate direction vector (skeleton relative to wave center)
+      local dx = skeletonCenterX - waveCenterX
+      local dy = skeletonCenterY - waveCenterY
 
-    -- Normalize and apply knockback
-    local distance = math.sqrt(dx * dx + dy * dy)
-    if distance > 0 then
-      dx = dx / distance
-      dy = dy / distance
-      local knockbackForce = self.stats:getValue("knockback")
-      c.velocityX = c.velocityX + dx * knockbackForce
-      c.velocityY = c.velocityY + dy * knockbackForce
+      -- Normalize and apply knockback
+      local distance = math.sqrt(dx * dx + dy * dy)
+      if distance > 0 then
+        dx = dx / distance
+        dy = dy / distance
+        local knockbackForce = self.stats:getValue("knockback")
+        c.velocityX = c.velocityX + dx * knockbackForce
+        c.velocityY = c.velocityY + dy * knockbackForce
+      end
+
+      if (c.health:isDead()) then -- remove skeleton from main map
+        tbl.remove(self.skeletons, c)
+      end
     end
 
-    if (c.health:isDead()) then -- remove skeleton from main map
-      tbl.remove(self.skeletons, c)
+    -- Check for wave completion (all skeletons defeated)
+    if #self.skeletons == 0 then
+      -- Increment wave counter (tracks number of waves completed)
+      S.currentWave = S.currentWave + 1
+
+      if S.currentWave < 10 then
+        -- Progress to reward selection screen
+        S.sceneManager:switch("reward_select")
+      else
+        -- Player has completed all 10 waves - go to credits
+        S.sceneManager:switch("credits")
+      end
     end
   end
 
-  -- Update debug panel if enabled
+  -- Update debug panel even when paused (if enabled)
   if self.debugPanel then
     self.debugPanel:update(dt)
   end
 
-  -- Check for wave completion (all skeletons defeated)
-  if #self.skeletons == 0 then
-    -- Increment wave counter (tracks number of waves completed)
-    S.currentWave = S.currentWave + 1
-
-    if S.currentWave < 10 then
-      -- Progress to reward selection screen
-      S.sceneManager:switch("reward_select")
-    else
-      -- Player has completed all 10 waves - go to credits
-      S.sceneManager:switch("credits")
-    end
+  -- Update pause scene if paused
+  if self.paused then
+    self.pauseScene:update(dt)
   end
 end
 
@@ -139,6 +163,11 @@ function battle:draw()
   self.wave:draw()
   self.cursor_debug:draw()
 
+  -- Draw pause scene overlay if paused
+  if self.paused then
+    self.pauseScene:draw()
+  end
+
   -- Draw debug panel on top of everything
   if self.debugPanel then
     self.debugPanel:draw()
@@ -146,8 +175,21 @@ function battle:draw()
 end
 
 function battle:keypressed(key)
-  -- Handle debug panel input
-  if self.debugPanel then
+  -- Handle pause scene input if paused
+  if self.paused then
+    if self.pauseScene:keypressed(key) then
+      return
+    end
+  end
+
+  -- Toggle pause with ESC key
+  if key == "escape" then
+    self.paused = not self.paused
+    return
+  end
+
+  -- Handle debug panel input (only when not paused)
+  if not self.paused and self.debugPanel then
     if self.debugPanel:keypressed(key) then
       return
     end
@@ -155,8 +197,15 @@ function battle:keypressed(key)
 end
 
 function battle:mousepressed(x, y, button)
-  -- Handle debug panel input
-  if self.debugPanel then
+  -- Handle pause scene input if paused
+  if self.paused then
+    if self.pauseScene:mousepressed(x, y, button) then
+      return
+    end
+  end
+
+  -- Handle debug panel input (only when not paused)
+  if not self.paused and self.debugPanel then
     if self.debugPanel:mousepressed(x, y, button) then
       return
     end
@@ -164,8 +213,8 @@ function battle:mousepressed(x, y, button)
 end
 
 function battle:mousereleased(x, y, button)
-  -- Handle debug panel input
-  if self.debugPanel then
+  -- Handle debug panel input (only when not paused)
+  if not self.paused and self.debugPanel then
     self.debugPanel:mousereleased(x, y, button)
   end
 end
