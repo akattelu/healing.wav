@@ -118,6 +118,9 @@ function battle:update(dt)
 
   -- Check for wave completion (all skeletons defeated)
   if #self.skeletons == 0 then
+    -- Increment wave counter (tracks number of waves completed)
+    S.currentWave = S.currentWave + 1
+
     if S.currentWave < 10 then
       -- Progress to reward selection screen
       S.sceneManager:switch("reward_select")

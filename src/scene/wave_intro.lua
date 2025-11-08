@@ -4,8 +4,8 @@ function WaveIntro:load()
   self.timer = 0
   self.displayDuration = 2.0 -- Show wave number for 2 seconds
 
-  -- Get current wave from global state
-  self.waveNumber = S.currentWave or 1
+  -- Get current wave from global state (S.currentWave = waves completed, so +1 for wave being played)
+  self.waveNumber = (S.currentWave or 0) + 1
 end
 
 function WaveIntro:update(dt)

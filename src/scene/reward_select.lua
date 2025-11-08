@@ -21,8 +21,8 @@ function reward_select:load()
   self.buttonFont = love.graphics.newFont(20)
   self.descFont = love.graphics.newFont(16)
 
-  -- Header text
-  self.headerText = "Wave " .. (S.currentWave - 1) .. " Complete!"
+  -- Header text (shows the wave just completed)
+  self.headerText = "Wave " .. S.currentWave .. " Complete!"
 
   -- Select 3 random rewards
   self.rewards = self:selectRandomRewards(3)
@@ -145,9 +145,7 @@ function reward_select:mousepressed(x, y, button)
       if btn.hovered then
         -- Apply the selected upgrade
         self:applyUpgrade(btn.reward)
-        -- Increment wave counter
-        S.currentWave = S.currentWave + 1
-        -- Transition to wave intro
+        -- Transition to wave intro (wave counter already incremented in battle scene)
         S.sceneManager:switch("wave_intro")
         return
       end

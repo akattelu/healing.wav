@@ -25,8 +25,8 @@ function love.load()
   -- Set default filter mode for crisp pixel art
   love.graphics.setDefaultFilter("nearest", "nearest")
 
-  -- Initialize wave tracking
-  S.currentWave = 1
+  -- Initialize wave tracking (number of waves completed)
+  S.currentWave = 0
 
   -- Initialize global stats (persists across waves for upgrades)
   S.stats = stats.new()
