@@ -186,6 +186,11 @@ local wave = function(stats, player)
         return false
       end
 
+      -- If wavelength is >= full circle, hit everything in range
+      if wavelength >= (2 * math.pi) then
+        return true
+      end
+
       -- Calculate angle from wave center to point
       local angle = math.atan2(dy, dx)
       if angle < 0 then
