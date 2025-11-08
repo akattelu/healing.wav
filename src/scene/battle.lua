@@ -53,10 +53,10 @@ function battle:load()
   end
 
   -- Initialize battle state
-  self.cl = cleric("lpc/cleric/walk.png")
-  self.skeletons = {}
   -- Use global stats that persist across waves (for upgrades)
   self.stats = S.stats
+  self.cl = cleric("lpc/cleric/walk.png", self.stats)
+  self.skeletons = {}
   self.wave = wave.new(self.stats, self.cl)
   self.cursor_debug = cursor_debug()
 

@@ -8,6 +8,7 @@ function stats.new()
     frequency = 200,          -- Speed
     period = 0.1,             -- Cooldown
     range = 1,                -- Duration
+    movementSpeed = 200,      -- Player movement speed
 
     -- Multipliers for percentage-based upgrades (1.0 = base, 1.2 = 20% increase)
     multipliers = {
@@ -16,6 +17,7 @@ function stats.new()
       frequency = 1.0,
       period = 1.0,
       range = 1.0,
+      movementSpeed = 1.0,
     }
   }
 

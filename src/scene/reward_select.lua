@@ -8,6 +8,7 @@ local STAT_UPGRADES = {
   { stat = "frequency", name = "Speed", percent = 25, description = "Faster wave expansion" },
   { stat = "period", name = "Cooldown", percent = 15, description = "Shorter cooldown (inverse)" },
   { stat = "range", name = "Duration", percent = 20, description = "Wave lasts longer" },
+  { stat = "movementSpeed", name = "Movement Speed", percent = 20, description = "Move faster across the battlefield" },
 }
 
 function reward_select:load()

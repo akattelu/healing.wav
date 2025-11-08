@@ -33,6 +33,7 @@ function debugPanel.new(stats)
       { name = "frequency", label = "Speed", min = 50, max = 500, default = 200, step = 10 },
       { name = "period", label = "Cooldown", min = 0.01, max = 2, default = 0.1, step = 0.01 },
       { name = "range", label = "Duration", min = 0.1, max = 5, default = 1, step = 0.1 },
+      { name = "movementSpeed", label = "Move Speed", min = 50, max = 500, default = 200, step = 10 },
     },
 
     -- Tab definitions

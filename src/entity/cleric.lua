@@ -8,10 +8,11 @@ local Direction = {
 }
 
 --- Cleric core object
-return function(spritePath)
+return function(spritePath, stats)
   return {
     -- Sprite metadata
     spritePath = spritePath,
+    stats = stats,
     sheet = nil,
     frames = {
       [Direction.UP] = {},
@@ -27,7 +28,6 @@ return function(spritePath)
     -- Position
     x = 0,
     y = 0,
-    speed = 200,
     directionX = Direction.IDLE,
     directionY = Direction.IDLE,
     spriteDirection = Direction.IDLE,
@@ -54,21 +54,22 @@ return function(spritePath)
     --- Update
     update = function(self, dt)
       -- Direction and movement management
+      local moveSpeed = self.stats:getValue("movementSpeed")
       if love.keyboard.isDown("up", "w") then
-        self.y = self.y - self.speed * dt
+        self.y = self.y - moveSpeed * dt
         self.directionY = Direction.UP
         self.spriteDirection = Direction.UP
       elseif love.keyboard.isDown("down", "s") then
-        self.y = self.y + self.speed * dt
+        self.y = self.y + moveSpeed * dt
         self.directionY = Direction.DOWN
         self.spriteDirection = Direction.DOWN
       end
       if love.keyboard.isDown("left", "a") then
-        self.x = self.x - self.speed * dt
+        self.x = self.x - moveSpeed * dt
         self.directionX = Direction.LEFT
         self.spriteDirection = Direction.LEFT
       elseif love.keyboard.isDown("right", "d") then
-        self.x = self.x + self.speed * dt
+        self.x = self.x + moveSpeed * dt
         self.directionX = Direction.RIGHT
         self.spriteDirection = Direction.RIGHT
       end

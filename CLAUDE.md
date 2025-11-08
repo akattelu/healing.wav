@@ -90,12 +90,13 @@ The healing wave is the most complex mechanic:
 - **Wave positioning**: Wave center (cx, cy) is updated to player:centerX(), player:centerY() at start of each EXTENDING cycle
 
 **Stats System** (src/lib/stats.lua):
-Wave properties are defined through stat metaphors:
+Wave properties and player attributes are defined through stat metaphors:
 - `amplitude`: Damage dealt (base: 1)
 - `wavelength`: Arc length in radians (base: π/2)
 - `frequency`: Speed of expansion (base: 200)
 - `period`: Cooldown duration between waves (base: 0.1s) - inverse upgrade (lower is better)
 - `range`: Duration of wave extension (base: 1s)
+- `movementSpeed`: Player movement speed (base: 200)
 
 Each stat has:
 - Base value (set in stats.lua or debug panel)
