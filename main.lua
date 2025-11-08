@@ -11,11 +11,15 @@ lick.clearPackages = true
 S = {}
 
 function love.load()
+  local settings = require "src.lib.settings"
   local cleric = require "src.entity.cleric"
   local skeleton = require "src.entity.skeleton"
   local wave = require "src.entity.wave"
   local cursor_debug = require "src.entity.cursor_debug"
   local stats = require "src.lib.stats"
+
+  -- Parse settings early so sound module can access it
+  S.settings = settings.parse()
 
   S.cl = cleric("lpc/cleric/walk.png")
   S.skeletons = {}
