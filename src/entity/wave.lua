@@ -51,12 +51,8 @@ local wave = function(stats, player)
     mode              = ExtensionMode.COOLDOWN,
     player            = player,
 
-    -- Stat-based parameters
+    -- Stat-based parameters (stored as reference to stats object)
     stats             = stats,
-    wavelength        = stats.wavelength,
-    extensionDuration = stats.range,
-    cooldown          = stats.period,
-    expansionSpeed    = stats.frequency,
 
     -- Animation constants
     currentTimer      = 0,
@@ -67,6 +63,23 @@ local wave = function(stats, player)
     collidedSprites   = {},
   }
 
+  -- Helper methods to get current stat values with multipliers
+  function Wave:getWavelength()
+    return self.stats:getValue("wavelength")
+  end
+
+  function Wave:getExtensionDuration()
+    return self.stats:getValue("range")
+  end
+
+  function Wave:getCooldown()
+    return self.stats:getValue("period")
+  end
+
+  function Wave:getExpansionSpeed()
+    return self.stats:getValue("frequency")
+  end
+
   function Wave.load(_)
 
   end
@@ -74,20 +87,24 @@ local wave = function(stats, player)
   function Wave.update(self, dt)
     self.currentTimer = self.currentTimer + dt
 
+    local range = self:getExtensionDuration()
+    local frequency = self:getExpansionSpeed()
+    local cooldown = self:getCooldown()
+
     if (self.mode == ExtensionMode.EXTENDING) then         -- Extension
-      self.radius = tween.cubic(self.stats.range * self.stats.frequency, self.currentTimer, self.stats.range)
-      if (self.currentTimer > self.extensionDuration) then -- Reset to cooldown
-        self.currentTimer = self.currentTimer - self.extensionDuration
+      self.radius = tween.cubic(range * frequency, self.currentTimer, range)
+      if (self.currentTimer > range) then -- Reset to cooldown
+        self.currentTimer = self.currentTimer - range
         self.mode = ExtensionMode.COOLDOWN
         self.collidedSprites = {} -- Reset this every expansion/cooldown cycle
       end
     else                          -- Cooldown
-      if (self.currentTimer > self.cooldown) then
+      if (self.currentTimer > cooldown) then
         -- Reset into extension mode
-        self.currentTimer = self.currentTimer - self.cooldown
+        self.currentTimer = self.currentTimer - cooldown
         self.mode = ExtensionMode.EXTENDING
         -- Reset to t=0
-        self.radius = tween.cubic(self.stats.range * self.stats.frequency, 0, self.stats.range)
+        self.radius = tween.cubic(range * frequency, 0, range)
 
         -- Reassign center based on stored player reference
         self.cx = self.player:centerX()
@@ -107,8 +124,9 @@ local wave = function(stats, player)
     end
 
     -- Draw thickening arc with radial gradient
-    local arcStart = Direction[self.direction] - (self.wavelength / 2)
-    local arcEnd = Direction[self.direction] + (self.wavelength / 2)
+    local wavelength = self:getWavelength()
+    local arcStart = Direction[self.direction] - (wavelength / 2)
+    local arcEnd = Direction[self.direction] + (wavelength / 2)
 
     -- Inner edge stays fixed, outer edge expands
     local innerRadius = BASE_RADIUS
@@ -150,8 +168,9 @@ local wave = function(stats, player)
     end
 
     local tickCollisions = {}
-    local arcStart = Direction[self.direction] - (self.wavelength / 2)
-    local arcEnd = Direction[self.direction] + (self.wavelength / 2)
+    local wavelength = self:getWavelength()
+    local arcStart = Direction[self.direction] - (wavelength / 2)
+    local arcEnd = Direction[self.direction] + (wavelength / 2)
     local innerRadius = BASE_RADIUS
     local outerRadius = self.radius
 

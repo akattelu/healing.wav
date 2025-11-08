@@ -89,8 +89,10 @@ end
 function title:mousepressed(x, y, button)
   if button == 1 then
     if self.playButton.hovered then
-      -- Reset wave counter and switch to wave intro scene
+      -- Reset wave counter and stats for new game
       S.currentWave = 1
+      local stats = require "src.lib.stats"
+      S.stats = stats.new()
       S.sceneManager:switch("wave_intro")
     elseif self.creditsButton.hovered then
       -- Switch to credits scene

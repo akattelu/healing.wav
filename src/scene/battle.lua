@@ -46,7 +46,6 @@ function battle:load()
   local cleric = require "src.entity.cleric"
   local wave = require "src.entity.wave"
   local cursor_debug = require "src.entity.cursor_debug"
-  local stats = require "src.lib.stats"
 
   -- Parse settings early so sound module can access it
   if not S.settings then
@@ -56,7 +55,8 @@ function battle:load()
   -- Initialize battle state
   self.cl = cleric("lpc/cleric/walk.png")
   self.skeletons = {}
-  self.stats = stats.new()
+  -- Use global stats that persist across waves (for upgrades)
+  self.stats = S.stats
   self.wave = wave.new(self.stats, self.cl)
   self.cursor_debug = cursor_debug()
 
@@ -77,7 +77,7 @@ function battle:update(dt)
   self.wave:update(dt)
   local collidedSkeletons = self.wave:collisions(self.skeletons)
   for _, c in pairs(collidedSkeletons) do
-    c:damage(self.stats.amplitude)
+    c:damage(self.stats:getValue("amplitude"))
     if (c.health:isDead()) then -- remove skeleton from main map
       tbl.remove(self.skeletons, c)
     end
@@ -86,9 +86,8 @@ function battle:update(dt)
   -- Check for wave completion (all skeletons defeated)
   if #self.skeletons == 0 then
     if S.currentWave < 10 then
-      -- Progress to next wave
-      S.currentWave = S.currentWave + 1
-      S.sceneManager:switch("wave_intro")
+      -- Progress to reward selection screen
+      S.sceneManager:switch("reward_select")
     else
       -- Player has completed all 10 waves - go to credits
       S.sceneManager:switch("credits")
