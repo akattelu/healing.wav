@@ -93,15 +93,15 @@ local wave = function(stats, player)
 
     if (self.mode == ExtensionMode.EXTENDING) then         -- Extension
       self.radius = tween.cubic(range * frequency, self.currentTimer, range)
-      if (self.currentTimer > range) then -- Reset to cooldown
-        self.currentTimer = self.currentTimer - range
+      if (self.currentTimer >= range) then -- Reset to cooldown
+        self.currentTimer = 0 -- Reset timer to start cooldown from 0
         self.mode = ExtensionMode.COOLDOWN
         self.collidedSprites = {} -- Reset this every expansion/cooldown cycle
       end
     else                          -- Cooldown
-      if (self.currentTimer > cooldown) then
+      if (self.currentTimer >= cooldown) then
         -- Reset into extension mode
-        self.currentTimer = self.currentTimer - cooldown
+        self.currentTimer = 0 -- Reset timer to start extension from 0
         self.mode = ExtensionMode.EXTENDING
         -- Reset to t=0
         self.radius = tween.cubic(range * frequency, 0, range)
