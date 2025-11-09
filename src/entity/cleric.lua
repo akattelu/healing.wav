@@ -1,3 +1,5 @@
+local health = require "src.entity.health"
+
 --- Direction Enum
 local Direction = {
   UP = 1,
@@ -8,7 +10,7 @@ local Direction = {
 }
 
 --- Cleric core object
-return function(spritePath, stats)
+return function(spritePath, stats, initialHealth)
   return {
     -- Sprite metadata
     spritePath = spritePath,
@@ -34,6 +36,9 @@ return function(spritePath, stats)
     -- Animation constants
     frameTimer = 0,
     frameDuration = 0.1,
+
+    -- Stats
+    health = health.new(0, 0, initialHealth),
 
     --- Load
     load = function(self)
@@ -89,6 +94,9 @@ return function(spritePath, stats)
       if self.currentFrame > #self.frames[self.spriteDirection] then
         self.currentFrame = 1
       end
+
+      -- Update health bar position
+      self.health:setTopLeft(self.x, self.y + self.frameHeight)
     end,
 
     --- Get current frame quad
@@ -117,6 +125,24 @@ return function(spritePath, stats)
         [Direction.UP] = -1,
       }
       return map[self.directionX], map[self.directionY]
+    end,
+
+    --- Draw cleric and health bar
+    draw = function(self)
+      love.graphics.push("all")
+      love.graphics.draw(self.sheet, self:frame(), self.x, self.y)
+      self.health:draw()
+      love.graphics.pop()
+    end,
+
+    --- Get position for collision detection
+    getPosition = function(self)
+      return self.x, self.y, self.frameWidth, self.frameHeight
+    end,
+
+    --- Take damage
+    damage = function(self, dmg)
+      self.health:damage(dmg)
     end
   }
 end

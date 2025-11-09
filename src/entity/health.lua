@@ -21,12 +21,12 @@ return {
 
         -- Draw green part
         local greenWidth = self.w * (self.health / self.maxhealth)
-        love.graphics.setColor(0, 255, 0, 1)
+        love.graphics.setColor(0, 1, 0, 1)
         love.graphics.rectangle("fill", self.x + 16, self.y, greenWidth, self.h)
 
         -- Draw red part
         local redWidth = self.w * (1 - (self.health / self.maxhealth))
-        love.graphics.setColor(255, 0, 0, 1)
+        love.graphics.setColor(1, 0, 0, 1)
         love.graphics.rectangle("fill", self.x + 16 + greenWidth, self.y, redWidth, self.h)
 
         -- Draw black border

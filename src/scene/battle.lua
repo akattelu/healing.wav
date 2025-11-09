@@ -65,10 +65,13 @@ function battle:load()
   -- Initialize battle state
   -- Use global stats that persist across waves (for upgrades)
   self.stats = S.stats
-  self.cl = cleric("lpc/cleric/walk.png", self.stats)
+  self.cl = cleric("lpc/cleric/walk.png", self.stats, 10) -- 10 starting health
   self.skeletons = {}
   self.wave = wave.new(self.stats, self.cl)
   self.cursor_debug = cursor_debug()
+
+  -- Collision tracking for skeleton-player damage (to prevent multiple hits per frame)
+  self.skeletonCollisionCooldowns = {} -- Maps skeleton -> cooldown timer
 
   -- Initialize pause state and scene
   self.paused = false
@@ -138,6 +141,37 @@ function battle:update(dt)
       end
     end
 
+    -- Check for skeleton-player collisions
+    local SKELETON_DAMAGE = 1
+    local COLLISION_COOLDOWN = 1.0 -- 1 second cooldown between hits from same skeleton
+    local px, py, pw, ph = self.cl:getPosition()
+
+    for _, s in pairs(self.skeletons) do
+      local sx, sy, sw, sh = s:getPosition()
+
+      -- Simple AABB collision detection
+      if px < sx + sw and px + pw > sx and py < sy + sh and py + ph > sy then
+        -- Check cooldown before applying damage
+        local cooldown = self.skeletonCollisionCooldowns[s] or 0
+        if cooldown <= 0 then
+          self.cl:damage(SKELETON_DAMAGE)
+          self.skeletonCollisionCooldowns[s] = COLLISION_COOLDOWN
+        end
+      end
+    end
+
+    -- Update cooldowns
+    for skeleton, cooldown in pairs(self.skeletonCollisionCooldowns) do
+      self.skeletonCollisionCooldowns[skeleton] = cooldown - dt
+    end
+
+    -- Check for player death
+    if self.cl.health:isDead() then
+      -- Restart the current wave
+      self:load()
+      return
+    end
+
     -- Check for wave completion (all skeletons defeated)
     if #self.skeletons == 0 then
       -- Increment wave counter (tracks number of waves completed)
@@ -165,7 +199,7 @@ function battle:update(dt)
 end
 
 function battle:draw()
-  love.graphics.draw(self.cl.sheet, self.cl:frame(), self.cl.x, self.cl.y)
+  self.cl:draw()
   for _, s in pairs(self.skeletons) do
     s:draw()
   end
