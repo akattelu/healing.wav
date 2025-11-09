@@ -2,11 +2,13 @@ return {
   --- Manages health and drawing health bar
   --- @param tlx number left corner x of where the box should be drawn
   --- @param tly number left corner y of where the box should be drawn
+  --- @param initialHealth number optional starting health (defaults to 3)
   --- @return table
-  new = function(tlx, tly)
+  new = function(tlx, tly, initialHealth)
+    local startHealth = initialHealth or 3
     return {
-      health = 3,
-      maxhealth = 5,
+      health = startHealth,
+      maxhealth = startHealth,
 
       -- Position
       h = 10,

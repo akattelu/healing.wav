@@ -14,7 +14,7 @@ local Direction = {
 }
 
 --- Skeleton core object
-return function(spritePath, player, startX, startY)
+return function(spritePath, player, startX, startY, initialHealth)
   return {
     -- Sprite metadata
     spritePath = spritePath,
@@ -49,7 +49,7 @@ return function(spritePath, player, startX, startY)
     player = player,
 
     -- Stats
-    health = health.new(startX + 64, startY),
+    health = health.new(startX + 64, startY, initialHealth),
     hit = false, -- for rendering flash effect and hit markers
     hitTimer = 0,
 
