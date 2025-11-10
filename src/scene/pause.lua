@@ -1,11 +1,12 @@
 -- Pause menu scene - overlay for pausing battle
 local pause = {}
 
-function pause:load(resumeCallback, restartCallback, titleCallback)
+function pause:load(resumeCallback, restartCallback, titleCallback, debugPanelToggleCallback)
   -- Store callbacks for button actions
   self.resumeCallback = resumeCallback
   self.restartCallback = restartCallback
   self.titleCallback = titleCallback
+  self.debugPanelToggleCallback = debugPanelToggleCallback
 
   -- Initialize buttons
   self.buttons = {
@@ -26,6 +27,16 @@ function pause:load(resumeCallback, restartCallback, titleCallback)
       action = function()
         if self.restartCallback then
           self.restartCallback()
+        end
+      end
+    },
+    {
+      label = "Toggle Debug Panel",
+      x = 0, y = 0, width = 300, height = 60,
+      hovered = false,
+      action = function()
+        if self.debugPanelToggleCallback then
+          self.debugPanelToggleCallback()
         end
       end
     },

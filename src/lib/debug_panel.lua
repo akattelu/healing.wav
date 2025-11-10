@@ -5,7 +5,7 @@ local debugPanel = {}
 
 function debugPanel.new(stats)
   local panel = {
-    visible = true,
+    visible = false,
     stats = stats,
     controls = {},
     soundCheckbox = {
@@ -284,7 +284,7 @@ function debugPanel.new(stats)
     love.graphics.setFont(self.smallFont)
     love.graphics.setColor(0.7, 0.7, 0.7)
     local footerY = self.y + self.height - 20
-    love.graphics.print("D: toggle • R: reset • 1/2/3: switch tabs", self.x + self.padding, footerY)
+    love.graphics.print("Toggle via Pause Menu (ESC) • Click tabs to switch", self.x + self.padding, footerY)
 
     love.graphics.pop()
   end
@@ -313,22 +313,7 @@ function debugPanel.new(stats)
   end
 
   function panel:keypressed(key)
-    if key == "d" then
-      self:toggle()
-      return true
-    elseif key == "r" and self.visible then
-      self:resetToDefaults()
-      return true
-    elseif key == "1" and self.visible then
-      self:switchTab(1)
-      return true
-    elseif key == "2" and self.visible then
-      self:switchTab(2)
-      return true
-    elseif key == "3" and self.visible then
-      self:switchTab(3)
-      return true
-    end
+    -- No keyboard shortcuts for debug panel
     return false
   end
 

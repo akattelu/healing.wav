@@ -25,13 +25,16 @@ healingwave is a roguelike 2D game written in Lua using the LÖVE2D framework. T
 # Run the game
 love .
 
-# With debug panel (D to toggle, R to reset, 1/2/3 to switch tabs)
-# The debug panel includes a sound toggle checkbox for runtime control
-love . --with-config-panel
-
 # Hot reloading is enabled via lick (vendor/lick.lua)
 # Changes to .lua files will automatically reload the game
 ```
+
+**Debug Panel**: Access the debug panel during gameplay by pressing ESC to pause, then clicking "Toggle Debug Panel". The debug panel allows you to:
+- Adjust base stat values (damage, arc length, speed, cooldown, duration, move speed, knockback)
+- Modify stat multipliers
+- View final computed values
+- Toggle sound on/off via checkbox
+- Switch between tabs by clicking them
 
 ## Project Structure
 
@@ -52,7 +55,7 @@ The game uses a simple entity-component architecture with scene management:
 
 **Global State Pattern** (S table):
 - `S.sceneManager` - Singleton scene manager
-- `S.settings` - Parsed CLI arguments (soundEnabled, debugPanelEnabled)
+- `S.settings` - Game settings (soundEnabled)
 - `S.stats` - Persistent stat object across waves (survives scene switches)
 - `S.currentWave` - Wave counter (1-10)
 
@@ -146,8 +149,8 @@ Objects must implement:
 - Entity lifecycle: load() for initialization, update(dt) for logic, draw() for rendering
 - Scene lifecycle: Same as entities - load(), update(dt), draw(), plus optional input handlers (keypressed, mousepressed, mousereleased)
 - Use love.graphics.push("all") / pop() for isolated graphics state changes
-- Settings are parsed via CLI args: `--with-config-panel`
-- Sound is enabled by default and can be toggled at runtime via the debug panel checkbox
+- Debug panel is always available, accessed via pause menu (ESC → Toggle Debug Panel)
+- Sound is disabled by default and can be toggled at runtime via the debug panel checkbox
 
 ### Adding New Scenes
 

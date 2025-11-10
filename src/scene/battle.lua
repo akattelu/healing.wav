@@ -77,6 +77,11 @@ function battle:load()
   -- Collision tracking for skeleton-player damage (to prevent multiple hits per frame)
   self.skeletonCollisionCooldowns = {} -- Maps skeleton -> cooldown timer
 
+  -- Load debug panel (always available, hidden by default)
+  local debugPanel = require "src.lib.debug_panel"
+  self.debugPanel = debugPanel.new(self.stats)
+  self.debugPanel:load()
+
   -- Initialize pause state and scene
   self.paused = false
   self.pauseScene = pauseScene
@@ -89,15 +94,11 @@ function battle:load()
     end,
     function() -- Return to title callback
       S.sceneManager:switch("title")
+    end,
+    function() -- Toggle debug panel callback
+      self.debugPanel:toggle()
     end
   )
-
-  -- Load debug panel if enabled
-  if S.settings.debugPanelEnabled then
-    local debugPanel = require "src.lib.debug_panel"
-    self.debugPanel = debugPanel.new(self.stats)
-    self.debugPanel:load()
-  end
 
   -- Load cleric
   self.cl:load()
@@ -233,13 +234,6 @@ function battle:keypressed(key)
   if key == "escape" then
     self.paused = not self.paused
     return
-  end
-
-  -- Handle debug panel input (only when not paused)
-  if not self.paused and self.debugPanel then
-    if self.debugPanel:keypressed(key) then
-      return
-    end
   end
 end
 
