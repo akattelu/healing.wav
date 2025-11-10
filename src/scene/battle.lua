@@ -14,11 +14,11 @@ function battle:spawnSkeletons()
   local baseCount = 20
   local baseHealth = 3
 
-  -- Exponential skeleton count: 20 * 1.7^(wave-1)
-  local totalSkeletons = math.floor(baseCount * math.pow(1.7, S.currentWave - 1))
+  -- Exponential skeleton count: 20 * 1.7^wave (S.currentWave is 0-indexed)
+  local totalSkeletons = math.floor(baseCount * math.pow(1.7, S.currentWave))
 
-  -- Aggressive health scaling: base + 2.5 per wave
-  local skeletonHealth = math.floor(baseHealth + (S.currentWave - 1) * 2.5)
+  -- Aggressive health scaling: base + 2.5 per wave (S.currentWave is 0-indexed)
+  local skeletonHealth = math.floor(baseHealth + S.currentWave * 2.5)
 
   -- Define side spawn zones (just outside screen bounds)
   local sides = {
