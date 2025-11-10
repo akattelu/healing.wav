@@ -14,8 +14,8 @@ function battle:spawnSkeletons()
   local baseCount = 20
   local baseHealth = 3
 
-  -- Exponential skeleton count: 20 * 1.3^(wave-1)
-  local totalSkeletons = math.floor(baseCount * math.pow(1.3, S.currentWave - 1))
+  -- Exponential skeleton count: 20 * 1.7^(wave-1)
+  local totalSkeletons = math.floor(baseCount * math.pow(1.7, S.currentWave - 1))
 
   -- Aggressive health scaling: base + 2.5 per wave
   local skeletonHealth = math.floor(baseHealth + (S.currentWave - 1) * 2.5)
