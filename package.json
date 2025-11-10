@@ -1,0 +1,27 @@
+{
+  "name": "healingwave",
+  "version": "1.0.0",
+  "description": "A roguelike 2D game where you play as a cleric wielding healing waves to survive 10 increasingly difficult waves of undead enemies.",
+  "main": "index.js",
+  "scripts": {
+    "build:web": "node build-web.js",
+    "serve": "http-server dist -p 8000 -o",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akattelu/healing.wav.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/akattelu/healing.wav/issues"
+  },
+  "homepage": "https://github.com/akattelu/healing.wav#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "love.js": "^11.4.1"
+  }
+}

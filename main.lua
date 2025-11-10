@@ -1,12 +1,15 @@
 --- @class love
 local love = require "love"
-local lick = require "vendor.lick" -- hot reloading
 local scene = require "src.lib.scene"
 
--- Lick config
-lick.reset = true
-lick.updateAllFiles = true
-lick.clearPackages = true
+-- Hot reloading (disabled for web builds)
+local isWeb = love.system.getOS() == "Web"
+if not isWeb then
+  local lick = require "vendor.lick"
+  lick.reset = true
+  lick.updateAllFiles = true
+  lick.clearPackages = true
+end
 
 S = {}
 
