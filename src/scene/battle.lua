@@ -171,8 +171,8 @@ function battle:update(dt)
 
     -- Check for player death
     if self.cl.health:isDead() then
-      -- Restart the current wave
-      self:load()
+      -- Switch to game over screen
+      S.sceneManager:switch("game_over")
       return
     end
 

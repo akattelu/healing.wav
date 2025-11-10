@@ -22,6 +22,7 @@ function love.load()
   local waveIntroScene = require "src.scene.wave_intro"
   local rewardSelectScene = require "src.scene.reward_select"
   local pauseScene = require "src.scene.pause"
+  local gameOverScene = require "src.scene.game_over"
 
   -- Parse settings early so sound module can access it
   S.settings = settings.parse()
@@ -43,6 +44,7 @@ function love.load()
   S.sceneManager:register("wave_intro", waveIntroScene)
   S.sceneManager:register("reward_select", rewardSelectScene)
   S.sceneManager:register("pause", pauseScene)
+  S.sceneManager:register("game_over", gameOverScene)
 
   -- Start with title screen
   S.sceneManager:switch("title")
