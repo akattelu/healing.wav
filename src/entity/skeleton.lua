@@ -30,6 +30,12 @@ return function(spritePath, player, startX, startY, initialHealth, initialSpeed)
     frameWidth = 64,
     frameHeight = 64,
 
+    -- Collision box (narrower and shorter than sprite)
+    collisionWidth = 64 * 0.5,  -- 50% width (25% cut each side)
+    collisionHeight = 64 * 0.75, -- 75% height (25% cut from top)
+    collisionOffsetX = 64 * 0.25, -- Center the narrower box
+    collisionOffsetY = 64 * 0.25, -- Shift down by 25%
+
     -- Position
     x = startX,
     y = startY,
@@ -162,7 +168,7 @@ return function(spritePath, player, startX, startY, initialHealth, initialSpeed)
     end,
 
     getPosition = function(self)
-      return self.x, self.y, self.frameWidth, self.frameHeight
+      return self.x + self.collisionOffsetX, self.y + self.collisionOffsetY, self.collisionWidth, self.collisionHeight
     end,
 
     damage = function(self, dmg)

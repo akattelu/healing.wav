@@ -27,6 +27,11 @@ return function(spritePath, stats, initialHealth)
     frameWidth = 64,
     frameHeight = 64,
 
+    -- Collision box (narrower than sprite)
+    collisionWidth = 64 * 0.5,  -- 50% width (25% cut each side)
+    collisionHeight = 64,
+    collisionOffsetX = 64 * 0.25, -- Center the narrower box
+
     -- Position
     x = 0,
     y = 0,
@@ -157,7 +162,7 @@ return function(spritePath, stats, initialHealth)
 
     --- Get position for collision detection
     getPosition = function(self)
-      return self.x, self.y, self.frameWidth, self.frameHeight
+      return self.x + self.collisionOffsetX, self.y, self.collisionWidth, self.collisionHeight
     end,
 
     --- Take damage
