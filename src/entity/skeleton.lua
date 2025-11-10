@@ -14,7 +14,7 @@ local Direction = {
 }
 
 --- Skeleton core object
-return function(spritePath, player, startX, startY, initialHealth)
+return function(spritePath, player, startX, startY, initialHealth, initialSpeed)
   return {
     -- Sprite metadata
     spritePath = spritePath,
@@ -33,7 +33,7 @@ return function(spritePath, player, startX, startY, initialHealth)
     -- Position
     x = startX,
     y = startY,
-    speed = 20,
+    speed = initialSpeed or 20,
     direction = Direction.IDLE,
 
     -- Velocity (for knockback)

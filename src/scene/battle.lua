@@ -13,12 +13,16 @@ function battle:spawnSkeletons()
   -- Calculate wave-based difficulty
   local baseCount = 20
   local baseHealth = 3
+  local baseSpeed = 20
 
   -- Exponential skeleton count: 20 * 1.7^wave (S.currentWave is 0-indexed)
   local totalSkeletons = math.floor(baseCount * math.pow(1.7, S.currentWave))
 
   -- Aggressive health scaling: base + 2.5 per wave (S.currentWave is 0-indexed)
   local skeletonHealth = math.floor(baseHealth + S.currentWave * 2.5)
+
+  -- Linear movement speed scaling: base + 3 per wave (S.currentWave is 0-indexed)
+  local skeletonSpeed = baseSpeed + S.currentWave * 3
 
   -- Define side spawn zones (just outside screen bounds)
   local sides = {
@@ -44,7 +48,7 @@ function battle:spawnSkeletons()
   for _ = 1, totalSkeletons do
     local randomSide = love.math.random(1, 4)
     local x, y = sides[randomSide]()
-    local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y, skeletonHealth)
+    local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y, skeletonHealth, skeletonSpeed)
     skele:load()
     table.insert(self.skeletons, skele)
   end
