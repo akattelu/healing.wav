@@ -33,6 +33,7 @@ return function(spritePath, stats, initialHealth)
     directionX = Direction.IDLE,
     directionY = Direction.IDLE,
     spriteDirection = Direction.IDLE,
+    lastNonIdleDirection = Direction.DOWN,
     -- Animation constants
     frameTimer = 0,
     frameDuration = 0.1,
@@ -64,22 +65,29 @@ return function(spritePath, stats, initialHealth)
         self.y = self.y - moveSpeed * dt
         self.directionY = Direction.UP
         self.spriteDirection = Direction.UP
+        self.lastNonIdleDirection = Direction.UP
       elseif love.keyboard.isDown("down", "s") then
         self.y = self.y + moveSpeed * dt
         self.directionY = Direction.DOWN
         self.spriteDirection = Direction.DOWN
+        self.lastNonIdleDirection = Direction.DOWN
       end
       if love.keyboard.isDown("left", "a") then
         self.x = self.x - moveSpeed * dt
         self.directionX = Direction.LEFT
         self.spriteDirection = Direction.LEFT
+        self.lastNonIdleDirection = Direction.LEFT
       elseif love.keyboard.isDown("right", "d") then
         self.x = self.x + moveSpeed * dt
         self.directionX = Direction.RIGHT
         self.spriteDirection = Direction.RIGHT
+        self.lastNonIdleDirection = Direction.RIGHT
       end
       if not love.keyboard.isDown("left", "up", "down", "right", "w", "a", "s", "d") then
+        -- Update IDLE to show first frame of last direction moved
+        self.frames[Direction.IDLE] = { self.frames[self.lastNonIdleDirection][1] }
         self.spriteDirection = Direction.IDLE
+        self.currentFrame = 1
         self.directionX = Direction.IDLE
         self.directionY = Direction.IDLE
       end
@@ -117,6 +125,18 @@ return function(spritePath, stats, initialHealth)
     --- Get movement direction
     --- Returns 1/0/-1 for right, down
     getDirections = function(self)
+      -- If stationary, use last direction moved
+      if self.directionX == Direction.IDLE and self.directionY == Direction.IDLE then
+        local directionMap = {
+          [Direction.UP] = {0, -1},
+          [Direction.DOWN] = {0, 1},
+          [Direction.LEFT] = {-1, 0},
+          [Direction.RIGHT] = {1, 0},
+        }
+        local dir = directionMap[self.lastNonIdleDirection]
+        return dir[1], dir[2]
+      end
+
       local map = {
         [Direction.IDLE] = 0,
         [Direction.RIGHT] = 1,
