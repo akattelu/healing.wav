@@ -1,5 +1,6 @@
 -- Game Over scene - displayed when player dies
 local game_over = {}
+local button = require "src.ui.button"
 
 function game_over:load()
   -- Get screen dimensions for centering
@@ -20,38 +21,39 @@ function game_over:load()
   local buttonSpacing = 80
 
   -- Create Restart button
-  self.restartButton = {
+  self.restartButton = button.new({
     text = "Restart Wave",
     width = buttonWidth,
     height = buttonHeight,
     x = centerX - buttonWidth / 2,
     y = centerY + 60,
-    hovered = false
-  }
+    font = self.buttonFont,
+    action = function()
+      S.sceneManager:switch("battle")
+    end
+  })
 
   -- Create Main Menu button
-  self.menuButton = {
+  self.menuButton = button.new({
     text = "Main Menu",
     width = buttonWidth,
     height = buttonHeight,
     x = centerX - buttonWidth / 2,
     y = centerY + 60 + buttonSpacing,
-    hovered = false
-  }
+    font = self.buttonFont,
+    action = function()
+      S.currentWave = 0
+      S.sceneManager:switch("title")
+    end
+  })
 
   -- Store wave info for display
   self.finalWave = S.currentWave + 1 -- Display as 1-indexed for player
 end
 
 function game_over:update(dt)
-  -- Update button hover states
-  local mx, my = love.mouse.getPosition()
-
-  self.restartButton.hovered = mx >= self.restartButton.x and mx <= self.restartButton.x + self.restartButton.width
-    and my >= self.restartButton.y and my <= self.restartButton.y + self.restartButton.height
-
-  self.menuButton.hovered = mx >= self.menuButton.x and mx <= self.menuButton.x + self.menuButton.width
-    and my >= self.menuButton.y and my <= self.menuButton.y + self.menuButton.height
+  self.restartButton:update(dt)
+  self.menuButton:update(dt)
 end
 
 function game_over:draw()
@@ -80,55 +82,18 @@ function game_over:draw()
   love.graphics.pop()
 
   -- Draw buttons
-  self:drawButton(self.restartButton)
-  self:drawButton(self.menuButton)
-end
-
-function game_over:drawButton(button)
-  love.graphics.push("all")
-  love.graphics.setFont(self.buttonFont)
-
-  -- Button background with hover effect
-  if button.hovered then
-    love.graphics.setColor(0.4, 0.6, 0.8)
-  else
-    love.graphics.setColor(0.3, 0.5, 0.7)
-  end
-  love.graphics.rectangle("fill", button.x, button.y, button.width, button.height, 8, 8)
-
-  -- Button border
-  love.graphics.setColor(0.9, 0.9, 1)
-  love.graphics.setLineWidth(2)
-  love.graphics.rectangle("line", button.x, button.y, button.width, button.height, 8, 8)
-
-  -- Button text (centered)
-  local textWidth = self.buttonFont:getWidth(button.text)
-  local textHeight = self.buttonFont:getHeight()
-  love.graphics.setColor(1, 1, 1)
-  love.graphics.print(button.text,
-    button.x + (button.width - textWidth) / 2,
-    button.y + (button.height - textHeight) / 2)
-
-  love.graphics.pop()
+  self.restartButton:draw()
+  self.menuButton:draw()
 end
 
 function game_over:mousepressed(x, y, button)
-  if button == 1 then -- Left click
-    -- Check Restart button
-    if self.restartButton.hovered then
-      -- Reload the battle scene (restarts current wave)
-      S.sceneManager:switch("battle")
-      return
-    end
+  if self.restartButton:mousepressed(x, y, button) then return end
+  if self.menuButton:mousepressed(x, y, button) then return end
+end
 
-    -- Check Main Menu button
-    if self.menuButton.hovered then
-      -- Reset to wave 0 and return to title
-      S.currentWave = 0
-      S.sceneManager:switch("title")
-      return
-    end
-  end
+function game_over:mousereleased(x, y, button)
+  self.restartButton:mousereleased(x, y, button)
+  self.menuButton:mousereleased(x, y, button)
 end
 
 return game_over

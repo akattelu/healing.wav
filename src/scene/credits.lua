@@ -1,4 +1,5 @@
 local credits = {}
+local button = require "src.ui.button"
 
 function credits:load()
   self.scrollOffset = 0
@@ -6,16 +7,25 @@ function credits:load()
   self.maxScroll = 2000 -- will adjust based on content
 
   -- Back button
-  self.backButton = {
+  self.backButton = button.new({
+    text = "< Back",
     x = 40,
     y = 40,
     width = 120,
     height = 50,
-    text = "< Back"
-  }
+    bgColor = {0.3, 0.3, 0.4},
+    bgColorHover = {0.4, 0.4, 0.5},
+    borderColor = {1, 1, 1},
+    action = function()
+      S.sceneManager:switch("title")
+    end
+  })
 end
 
 function credits:update(dt)
+  -- Update button
+  self.backButton:update(dt)
+
   -- Auto-scroll credits
   if love.keyboard.isDown("down") or love.keyboard.isDown("s") then
     self.scrollOffset = math.min(self.scrollOffset + self.scrollSpeed * dt, self.maxScroll)
@@ -35,18 +45,7 @@ function credits:draw()
   love.graphics.rectangle("fill", 0, 0, width, height)
 
   -- Draw back button
-  love.graphics.setColor(0.3, 0.3, 0.4, 1)
-  love.graphics.rectangle("fill", self.backButton.x, self.backButton.y,
-    self.backButton.width, self.backButton.height, 8, 8)
-  love.graphics.setColor(1, 1, 1, 1)
-  love.graphics.rectangle("line", self.backButton.x, self.backButton.y,
-    self.backButton.width, self.backButton.height, 8, 8)
-
-  local buttonTextWidth = love.graphics.getFont():getWidth(self.backButton.text)
-  local buttonTextHeight = love.graphics.getFont():getHeight()
-  love.graphics.print(self.backButton.text,
-    self.backButton.x + (self.backButton.width - buttonTextWidth) / 2,
-    self.backButton.y + (self.backButton.height - buttonTextHeight) / 2)
+  self.backButton:draw()
 
   -- Title
   love.graphics.setColor(1, 1, 1, 1)
@@ -128,13 +127,11 @@ function credits:drawText(text, x, y, lineHeight)
 end
 
 function credits:mousepressed(x, y, button)
-  if button == 1 then
-    -- Check back button
-    if x >= self.backButton.x and x <= self.backButton.x + self.backButton.width and
-        y >= self.backButton.y and y <= self.backButton.y + self.backButton.height then
-      S.sceneManager:switch("title")
-    end
-  end
+  self.backButton:mousepressed(x, y, button)
+end
+
+function credits:mousereleased(x, y, button)
+  self.backButton:mousereleased(x, y, button)
 end
 
 function credits:keypressed(key)

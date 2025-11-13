@@ -1,5 +1,6 @@
 -- Title screen scene
 local title = {}
+local button = require "src.ui.button"
 
 function title:load()
   -- Get screen dimensions
@@ -9,37 +10,43 @@ function title:load()
   self.titleText = "healing.wav"
   self.titleFont = love.graphics.newFont(48)
 
-  -- Play button
+  -- Button font
   self.buttonFont = love.graphics.newFont(24)
-  self.playButton = {
+
+  -- Play button
+  self.playButton = button.new({
     text = "Play",
     width = 200,
     height = 60,
     x = (self.screenW - 200) / 2,
     y = self.screenH / 2 + 50,
-    hovered = false
-  }
+    font = self.buttonFont,
+    action = function()
+      -- Reset wave counter and stats for new game
+      S.currentWave = 0
+      local stats = require "src.lib.stats"
+      S.stats = stats.new()
+      S.sceneManager:switch("wave_intro")
+    end
+  })
 
   -- Credits button
-  self.creditsButton = {
+  self.creditsButton = button.new({
     text = "Credits",
     width = 200,
     height = 60,
     x = (self.screenW - 200) / 2,
     y = self.screenH / 2 + 130,
-    hovered = false
-  }
+    font = self.buttonFont,
+    action = function()
+      S.sceneManager:switch("credits")
+    end
+  })
 end
 
 function title:update(dt)
-  -- Check if mouse is hovering over buttons
-  local mx, my = love.mouse.getPosition()
-
-  self.playButton.hovered = mx >= self.playButton.x and mx <= self.playButton.x + self.playButton.width
-      and my >= self.playButton.y and my <= self.playButton.y + self.playButton.height
-
-  self.creditsButton.hovered = mx >= self.creditsButton.x and mx <= self.creditsButton.x + self.creditsButton.width
-      and my >= self.creditsButton.y and my <= self.creditsButton.y + self.creditsButton.height
+  self.playButton:update(dt)
+  self.creditsButton:update(dt)
 end
 
 function title:draw()
@@ -53,52 +60,21 @@ function title:draw()
   love.graphics.print(self.titleText, (self.screenW - titleWidth) / 2, self.screenH / 2 - 100)
 
   -- Draw buttons
-  love.graphics.setFont(self.buttonFont)
-  self:drawButton(self.playButton)
-  self:drawButton(self.creditsButton)
+  self.playButton:draw()
+  self.creditsButton:draw()
 
   -- Reset color
   love.graphics.setColor(1, 1, 1)
 end
 
-function title:drawButton(button)
-  -- Button background (changes color on hover)
-  if button.hovered then
-    love.graphics.setColor(0.4, 0.6, 0.8)
-  else
-    love.graphics.setColor(0.3, 0.5, 0.7)
-  end
-  love.graphics.rectangle("fill", button.x, button.y, button.width, button.height, 8, 8)
-
-  -- Button border
-  love.graphics.setColor(0.9, 0.9, 1)
-  love.graphics.setLineWidth(2)
-  love.graphics.rectangle("line", button.x, button.y, button.width, button.height, 8, 8)
-
-  -- Button text
-  local textWidth = self.buttonFont:getWidth(button.text)
-  local textHeight = self.buttonFont:getHeight()
-  love.graphics.setColor(1, 1, 1)
-  love.graphics.print(
-    button.text,
-    button.x + (button.width - textWidth) / 2,
-    button.y + (button.height - textHeight) / 2
-  )
+function title:mousepressed(x, y, button)
+  if self.playButton:mousepressed(x, y, button) then return end
+  if self.creditsButton:mousepressed(x, y, button) then return end
 end
 
-function title:mousepressed(x, y, button)
-  if button == 1 then
-    if self.playButton.hovered then
-      -- Reset wave counter and stats for new game
-      S.currentWave = 0
-      local stats = require "src.lib.stats"
-      S.stats = stats.new()
-      S.sceneManager:switch("wave_intro")
-    elseif self.creditsButton.hovered then
-      -- Switch to credits scene
-      S.sceneManager:switch("credits")
-    end
-  end
+function title:mousereleased(x, y, button)
+  self.playButton:mousereleased(x, y, button)
+  self.creditsButton:mousereleased(x, y, button)
 end
 
 return title

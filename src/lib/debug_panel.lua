@@ -1,5 +1,7 @@
 --- Debug panel for adjusting game stats in real-time (Tabbed UI)
 local numberControl = require "src.ui.number_control"
+local checkbox = require "src.ui.checkbox"
+local tab = require "src.ui.tab"
 
 local debugPanel = {}
 
@@ -8,14 +10,6 @@ function debugPanel.new(stats)
     visible = false,
     stats = stats,
     controls = {},
-    soundCheckbox = {
-      x = 0, y = 0,
-      width = 20, height = 20,
-      hovered = false
-    },
-
-    -- Current active tab (1=Base, 2=Multipliers, 3=Overview)
-    activeTab = 1,
 
     -- Panel layout
     x = 20,
@@ -40,13 +34,6 @@ function debugPanel.new(stats)
       { name = "range", label = "Duration", min = 0.1, max = 5, default = 1, step = 0.1 },
       { name = "movementSpeed", label = "Move Speed", min = 50, max = 500, default = 200, step = 10 },
       { name = "knockback", label = "Knockback", min = 0, max = 500, default = 150, step = 10 },
-    },
-
-    -- Tab definitions
-    tabs = {
-      { name = "Base Values", key = 1 },
-      { name = "Multipliers", key = 2 },
-      { name = "Overview", key = 3 },
     }
   }
 
@@ -104,28 +91,51 @@ function debugPanel.new(stats)
   function panel:load()
     self:createControls()
 
-    -- Position sound checkbox in header area
-    self.soundCheckbox.x = self.x + self.width - 80
-    self.soundCheckbox.y = self.y + self.padding + 2
+    -- Create sound checkbox
+    self.soundCheckbox = checkbox.new({
+      label = "Sound",
+      x = self.x + self.width - 80,
+      y = self.y + self.padding + 2,
+      checked = S.settings.soundEnabled,
+      font = self.smallFont,
+      onChange = function(checked)
+        S.settings.soundEnabled = checked
+      end
+    })
+
+    -- Create tab container
+    self.tabContainer = tab.new({
+      tabs = {
+        { name = "Base Values", key = 1 },
+        { name = "Multipliers", key = 2 },
+        { name = "Overview", key = 3 },
+      },
+      x = self.x,
+      y = self.y + 30,
+      width = self.width,
+      height = 28,
+      font = self.tabFont
+    })
   end
 
   function panel:update(dt)
     if not self.visible then return end
 
-    -- Update checkbox hover state
-    local mx, my = love.mouse.getPosition()
-    self.soundCheckbox.hovered =
-      mx >= self.soundCheckbox.x and
-      mx <= self.soundCheckbox.x + self.soundCheckbox.width and
-      my >= self.soundCheckbox.y and
-      my <= self.soundCheckbox.y + self.soundCheckbox.height
+    -- Update checkbox
+    self.soundCheckbox:update(dt)
+
+    -- Sync checkbox state with settings
+    if self.soundCheckbox.checked ~= S.settings.soundEnabled then
+      self.soundCheckbox:setChecked(S.settings.soundEnabled)
+    end
 
     -- Update controls for active tab
-    if self.activeTab == 1 then -- Base values
+    local activeTab = self.tabContainer:getActiveTab()
+    if activeTab == 1 then -- Base values
       for _, ctrl in ipairs(self.controls) do
         ctrl.base:update(dt)
       end
-    elseif self.activeTab == 2 then -- Multipliers
+    elseif activeTab == 2 then -- Multipliers
       for _, ctrl in ipairs(self.controls) do
         ctrl.mult:update(dt)
       end
@@ -133,38 +143,6 @@ function debugPanel.new(stats)
     -- Overview tab has no interactive controls
   end
 
-  function panel:drawTabs()
-    local tabWidth = self.width / 3
-    local tabHeight = 28
-    local tabY = self.y + 30
-
-    for i, tab in ipairs(self.tabs) do
-      local tabX = self.x + ((i - 1) * tabWidth)
-
-      -- Tab background
-      if self.activeTab == i then
-        love.graphics.setColor(0.4, 0.6, 0.8) -- Active tab
-      else
-        love.graphics.setColor(0.25, 0.35, 0.45) -- Inactive tab
-      end
-      love.graphics.rectangle("fill", tabX, tabY, tabWidth, tabHeight, 4, 4)
-
-      -- Tab border
-      love.graphics.setColor(0.5, 0.7, 0.9)
-      love.graphics.setLineWidth(1)
-      love.graphics.rectangle("line", tabX, tabY, tabWidth, tabHeight, 4, 4)
-
-      -- Tab label
-      love.graphics.setFont(self.tabFont)
-      love.graphics.setColor(1, 1, 1)
-      local textWidth = self.tabFont:getWidth(tab.name)
-      love.graphics.print(
-        tab.name,
-        tabX + (tabWidth - textWidth) / 2,
-        tabY + 7
-      )
-    end
-  end
 
   function panel:drawBaseValues()
     local startY = self.y + 70
@@ -241,42 +219,18 @@ function debugPanel.new(stats)
     love.graphics.print("Debug Panel", self.x + self.padding, self.y + self.padding)
 
     -- Draw sound toggle checkbox
-    local cb = self.soundCheckbox
-    -- Checkbox background
-    if cb.hovered then
-      love.graphics.setColor(0.3, 0.4, 0.5)
-    else
-      love.graphics.setColor(0.2, 0.3, 0.4)
-    end
-    love.graphics.rectangle("fill", cb.x, cb.y, cb.width, cb.height, 2, 2)
-
-    -- Checkbox border
-    love.graphics.setColor(0.5, 0.7, 0.9)
-    love.graphics.setLineWidth(1)
-    love.graphics.rectangle("line", cb.x, cb.y, cb.width, cb.height, 2, 2)
-
-    -- Checkmark if sound is enabled
-    if S.settings.soundEnabled then
-      love.graphics.setColor(0.3, 1, 0.3)
-      love.graphics.setLineWidth(2)
-      love.graphics.line(cb.x + 4, cb.y + 10, cb.x + 8, cb.y + 14)
-      love.graphics.line(cb.x + 8, cb.y + 14, cb.x + 16, cb.y + 6)
-    end
-
-    -- Checkbox label
-    love.graphics.setFont(self.smallFont)
-    love.graphics.setColor(0.9, 0.9, 0.9)
-    love.graphics.print("Sound", cb.x + cb.width + 5, cb.y + 5)
+    self.soundCheckbox:draw()
 
     -- Draw tabs
-    self:drawTabs()
+    self.tabContainer:draw()
 
     -- Draw content based on active tab
-    if self.activeTab == 1 then
+    local activeTab = self.tabContainer:getActiveTab()
+    if activeTab == 1 then
       self:drawBaseValues()
-    elseif self.activeTab == 2 then
+    elseif activeTab == 2 then
       self:drawMultipliers()
-    elseif self.activeTab == 3 then
+    elseif activeTab == 3 then
       self:drawOverview()
     end
 
@@ -291,12 +245,6 @@ function debugPanel.new(stats)
 
   function panel:toggle()
     self.visible = not self.visible
-  end
-
-  function panel:switchTab(tabIndex)
-    if tabIndex >= 1 and tabIndex <= #self.tabs then
-      self.activeTab = tabIndex
-    end
   end
 
   function panel:resetToDefaults()
@@ -321,34 +269,24 @@ function debugPanel.new(stats)
     if not self.visible then return false end
 
     -- Check sound checkbox click
-    local cb = self.soundCheckbox
-    if x >= cb.x and x <= cb.x + cb.width and
-       y >= cb.y and y <= cb.y + cb.height then
-      S.settings.soundEnabled = not S.settings.soundEnabled
+    if self.soundCheckbox:mousepressed(x, y, button) then
       return true
     end
 
     -- Check tab clicks
-    local tabWidth = self.width / 3
-    local tabHeight = 28
-    local tabY = self.y + 30
-
-    for i, tab in ipairs(self.tabs) do
-      local tabX = self.x + ((i - 1) * tabWidth)
-      if x >= tabX and x <= tabX + tabWidth and y >= tabY and y <= tabY + tabHeight then
-        self:switchTab(i)
-        return true
-      end
+    if self.tabContainer:mousepressed(x, y, button) then
+      return true
     end
 
     -- Check control clicks based on active tab
-    if self.activeTab == 1 then -- Base values
+    local activeTab = self.tabContainer:getActiveTab()
+    if activeTab == 1 then -- Base values
       for _, ctrl in ipairs(self.controls) do
         if ctrl.base:mousepressed(x, y, button) then
           return true
         end
       end
-    elseif self.activeTab == 2 then -- Multipliers
+    elseif activeTab == 2 then -- Multipliers
       for _, ctrl in ipairs(self.controls) do
         if ctrl.mult:mousepressed(x, y, button) then
           return true

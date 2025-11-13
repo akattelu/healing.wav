@@ -1,64 +1,53 @@
 -- Pause menu scene - overlay for pausing battle
 local pause = {}
+local button = require "src.ui.button"
 
 function pause:load(resumeCallback, restartCallback, titleCallback, debugPanelToggleCallback)
-  -- Store callbacks for button actions
-  self.resumeCallback = resumeCallback
-  self.restartCallback = restartCallback
-  self.titleCallback = titleCallback
-  self.debugPanelToggleCallback = debugPanelToggleCallback
-
   -- Initialize buttons
   self.buttons = {
-    {
-      label = "Resume",
+    button.new({
+      text = "Resume",
       x = 0, y = 0, width = 300, height = 60,
-      hovered = false,
       action = function()
-        if self.resumeCallback then
-          self.resumeCallback()
+        if resumeCallback then
+          resumeCallback()
         end
       end
-    },
-    {
-      label = "Restart Wave",
+    }),
+    button.new({
+      text = "Restart Wave",
       x = 0, y = 0, width = 300, height = 60,
-      hovered = false,
       action = function()
-        if self.restartCallback then
-          self.restartCallback()
+        if restartCallback then
+          restartCallback()
         end
       end
-    },
-    {
-      label = "Toggle Debug Panel",
+    }),
+    button.new({
+      text = "Toggle Debug Panel",
       x = 0, y = 0, width = 300, height = 60,
-      hovered = false,
       action = function()
-        if self.debugPanelToggleCallback then
-          self.debugPanelToggleCallback()
+        if debugPanelToggleCallback then
+          debugPanelToggleCallback()
         end
       end
-    },
-    {
-      label = "Return to Title",
+    }),
+    button.new({
+      text = "Return to Title",
       x = 0, y = 0, width = 300, height = 60,
-      hovered = false,
       action = function()
-        if self.titleCallback then
-          self.titleCallback()
+        if titleCallback then
+          titleCallback()
         end
       end
-    }
+    })
   }
 end
 
 function pause:update(dt)
-  -- Update button hover states
-  local mx, my = love.mouse.getPosition()
-  for _, button in ipairs(self.buttons) do
-    button.hovered = mx >= button.x and mx <= button.x + button.width and
-                     my >= button.y and my <= button.y + button.height
+  -- Update buttons (positions set dynamically in draw)
+  for _, btn in ipairs(self.buttons) do
+    btn:update(dt)
   end
 end
 
@@ -75,9 +64,8 @@ function pause:draw()
   local menuStartY = screen_h / 2 - 120
   local buttonSpacing = 80
 
-  for i, button in ipairs(self.buttons) do
-    button.x = screen_w / 2 - menuWidth / 2
-    button.y = menuStartY + (i - 1) * buttonSpacing
+  for i, btn in ipairs(self.buttons) do
+    btn:setPosition(screen_w / 2 - menuWidth / 2, menuStartY + (i - 1) * buttonSpacing)
   end
 
   -- Draw "PAUSED" title
@@ -88,25 +76,8 @@ function pause:draw()
   love.graphics.print(titleText, screen_w / 2 - titleWidth / 2, menuStartY - 80)
 
   -- Draw buttons
-  for _, button in ipairs(self.buttons) do
-    -- Button background
-    if button.hovered then
-      love.graphics.setColor(0.4, 0.6, 0.8, 1)
-    else
-      love.graphics.setColor(0.3, 0.5, 0.7, 1)
-    end
-    love.graphics.rectangle("fill", button.x, button.y, button.width, button.height, 8, 8)
-
-    -- Button border
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setLineWidth(2)
-    love.graphics.rectangle("line", button.x, button.y, button.width, button.height, 8, 8)
-
-    -- Button label
-    local labelWidth = font:getWidth(button.label)
-    local labelX = button.x + button.width / 2 - labelWidth / 2
-    local labelY = button.y + button.height / 2 - font:getHeight() / 2
-    love.graphics.print(button.label, labelX, labelY)
+  for _, btn in ipairs(self.buttons) do
+    btn:draw()
   end
 
   love.graphics.pop()
@@ -115,8 +86,8 @@ end
 function pause:keypressed(key)
   -- ESC key resumes the game
   if key == "escape" then
-    if self.resumeCallback then
-      self.resumeCallback()
+    if self.buttons[1] and self.buttons[1].action then
+      self.buttons[1].action()
     end
     return true
   end
@@ -124,16 +95,18 @@ function pause:keypressed(key)
 end
 
 function pause:mousepressed(x, y, button)
-  -- Handle button clicks
-  if button == 1 then
-    for _, btn in ipairs(self.buttons) do
-      if btn.hovered then
-        btn.action()
-        return true
-      end
+  for _, btn in ipairs(self.buttons) do
+    if btn:mousepressed(x, y, button) then
+      return true
     end
   end
   return false
+end
+
+function pause:mousereleased(x, y, button)
+  for _, btn in ipairs(self.buttons) do
+    btn:mousereleased(x, y, button)
+  end
 end
 
 return pause

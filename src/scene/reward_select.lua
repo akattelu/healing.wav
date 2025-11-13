@@ -1,5 +1,6 @@
 -- Reward selection scene - appears after completing a wave
 local reward_select = {}
+local button = require "src.ui.button"
 
 -- Load stat upgrades from library
 local STAT_UPGRADES = require("src.lib.stat_upgrades")
@@ -28,16 +29,23 @@ function reward_select:load()
 
   for i = 1, 3 do
     local reward = self.rewards[i]
-    self.buttons[i] = {
-      reward = reward,
+    self.buttons[i] = button.new({
       text = "+" .. reward.percent .. "% " .. reward.name,
       description = reward.description,
       width = buttonWidth,
       height = buttonHeight,
       x = (self.screenW - buttonWidth) / 2,
       y = startY + (i - 1) * (buttonHeight + buttonSpacing),
-      hovered = false
-    }
+      font = self.buttonFont,
+      descriptionFont = self.descFont,
+      payload = reward,
+      action = function()
+        -- Apply the selected upgrade
+        self:applyUpgrade(reward)
+        -- Transition to wave intro (wave counter already incremented in battle scene)
+        S.sceneManager:switch("wave_intro")
+      end
+    })
   end
 end
 
@@ -60,12 +68,8 @@ function reward_select:selectRandomRewards(count)
 end
 
 function reward_select:update(dt)
-  -- Check if mouse is hovering over buttons
-  local mx, my = love.mouse.getPosition()
-
-  for _, button in ipairs(self.buttons) do
-    button.hovered = mx >= button.x and mx <= button.x + button.width
-        and my >= button.y and my <= button.y + button.height
+  for _, btn in ipairs(self.buttons) do
+    btn:update(dt)
   end
 end
 
@@ -87,61 +91,25 @@ function reward_select:draw()
   love.graphics.print(instructText, (self.screenW - instructWidth) / 2, 170)
 
   -- Draw buttons
-  love.graphics.setFont(self.buttonFont)
-  for _, button in ipairs(self.buttons) do
-    self:drawButton(button)
+  for _, btn in ipairs(self.buttons) do
+    btn:draw()
   end
 
   -- Reset color
   love.graphics.setColor(1, 1, 1)
 end
 
-function reward_select:drawButton(button)
-  -- Button background (changes color on hover)
-  if button.hovered then
-    love.graphics.setColor(0.4, 0.6, 0.8)
-  else
-    love.graphics.setColor(0.3, 0.5, 0.7)
+function reward_select:mousepressed(x, y, button)
+  for _, btn in ipairs(self.buttons) do
+    if btn:mousepressed(x, y, button) then
+      return
+    end
   end
-  love.graphics.rectangle("fill", button.x, button.y, button.width, button.height, 8, 8)
-
-  -- Button border
-  love.graphics.setColor(0.9, 0.9, 1)
-  love.graphics.setLineWidth(2)
-  love.graphics.rectangle("line", button.x, button.y, button.width, button.height, 8, 8)
-
-  -- Button text (main upgrade)
-  love.graphics.setFont(self.buttonFont)
-  local textWidth = self.buttonFont:getWidth(button.text)
-  love.graphics.setColor(1, 1, 1)
-  love.graphics.print(
-    button.text,
-    button.x + (button.width - textWidth) / 2,
-    button.y + 25
-  )
-
-  -- Description text
-  love.graphics.setFont(self.descFont)
-  local descWidth = self.descFont:getWidth(button.description)
-  love.graphics.setColor(0.8, 0.8, 0.9)
-  love.graphics.print(
-    button.description,
-    button.x + (button.width - descWidth) / 2,
-    button.y + 60
-  )
 end
 
-function reward_select:mousepressed(x, y, button)
-  if button == 1 then
-    for _, btn in ipairs(self.buttons) do
-      if btn.hovered then
-        -- Apply the selected upgrade
-        self:applyUpgrade(btn.reward)
-        -- Transition to wave intro (wave counter already incremented in battle scene)
-        S.sceneManager:switch("wave_intro")
-        return
-      end
-    end
+function reward_select:mousereleased(x, y, button)
+  for _, btn in ipairs(self.buttons) do
+    btn:mousereleased(x, y, button)
   end
 end
 
