@@ -103,6 +103,11 @@ function battle:load()
   -- Load cleric
   self.cl:load()
 
+  -- Center cleric on stage
+  local screen_w, screen_h = love.window.getMode()
+  self.cl.x = (screen_w - self.cl.frameWidth) / 2
+  self.cl.y = (screen_h - self.cl.frameHeight) / 2
+
   -- Spawn skeletons for this wave
   self:spawnSkeletons()
 
