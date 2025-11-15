@@ -1,4 +1,8 @@
 local health = require "src.entity.health"
+local sound = require "src.lib.sound"
+
+local HIT_DURATION = 0.5
+local HIT_RATE_LIMIT = 0.25 -- Minimum seconds between hits (4 hits/second max)
 
 --- Direction Enum
 local Direction = {
@@ -45,6 +49,12 @@ return function(spritePath, stats, initialHealth)
 
     -- Stats
     health = health.new(0, 0, initialHealth),
+    hit = false, -- for rendering flash effect and hit markers
+    hitTimer = 0,
+    lastHitTime = 0, -- timestamp for rate limiting
+
+    -- Sound
+    hitSound = nil,
 
     --- Load
     load = function(self)
@@ -60,6 +70,8 @@ return function(spritePath, stats, initialHealth)
       end
       -- Default animation is facing down
       self.frames[Direction.IDLE] = { self.frames[Direction.DOWN][1] }
+
+      self.hitSound = sound.beep(800, 0.2)
     end,
 
     --- Update
@@ -110,6 +122,20 @@ return function(spritePath, stats, initialHealth)
 
       -- Update health bar position
       self.health:setTopLeft(self.x, self.y + self.frameHeight)
+
+      if (self.hit) then
+        self.hitTimer = self.hitTimer + dt
+        if (self.hitTimer > HIT_DURATION) then
+          self.hitTimer = 0
+          self.hit = false
+          self.hitSound:stop()
+        end
+      end
+
+      -- Stop sound immediately if sound is disabled
+      if not S.settings.soundEnabled and self.hitSound:isPlaying() then
+        self.hitSound:stop()
+      end
     end,
 
     --- Get current frame quad
@@ -155,6 +181,9 @@ return function(spritePath, stats, initialHealth)
     --- Draw cleric and health bar
     draw = function(self)
       love.graphics.push("all")
+      if (self.hit) then
+        love.graphics.setColor(1, 1, 1, 0.5)
+      end
       love.graphics.draw(self.sheet, self:frame(), self.x, self.y)
       self.health:draw()
       love.graphics.pop()
@@ -165,9 +194,18 @@ return function(spritePath, stats, initialHealth)
       return self.x + self.collisionOffsetX, self.y, self.collisionWidth, self.collisionHeight
     end,
 
-    --- Take damage
+    --- Take damage (rate-limited to max 4 hits/second)
     damage = function(self, dmg)
-      self.health:damage(dmg)
+      local currentTime = love.timer.getTime()
+      if currentTime - self.lastHitTime >= HIT_RATE_LIMIT then
+        self.hit = true
+        self.hitTimer = 0
+        self.lastHitTime = currentTime
+        if S.settings.soundEnabled then
+          self.hitSound:play()
+        end
+        self.health:damage(dmg)
+      end
     end
   }
 end
