@@ -68,15 +68,11 @@ local wave = function(stats, player)
     return self.stats:getValue("wavelength")
   end
 
-  function Wave:getExtensionDuration()
+  function Wave:getMaxRange()
     return self.stats:getValue("range")
   end
 
-  function Wave:getCooldown()
-    return self.stats:getValue("period")
-  end
-
-  function Wave:getExpansionSpeed()
+  function Wave:getAttackSpeed()
     return self.stats:getValue("frequency")
   end
 
@@ -87,24 +83,31 @@ local wave = function(stats, player)
   function Wave.update(self, dt)
     self.currentTimer = self.currentTimer + dt
 
-    local range = self:getExtensionDuration()
-    local frequency = self:getExpansionSpeed()
-    local cooldown = self:getCooldown()
+    local attackSpeed = self:getAttackSpeed() -- attacks per second
+    local maxRange = self:getMaxRange()       -- max radius in pixels
+
+    -- Calculate phase durations based on attack speed
+    local cycleTime = 1 / attackSpeed         -- total time for one attack cycle
+    local extendingTime = cycleTime * 0.6     -- 60% of cycle for extending
+    local cooldownTime = cycleTime * 0.4      -- 40% of cycle for cooldown
 
     if (self.mode == ExtensionMode.EXTENDING) then         -- Extension
-      self.radius = tween.cubic(range * frequency, self.currentTimer, range)
-      if (self.currentTimer >= range) then -- Reset to cooldown
+      -- Expand from BASE_RADIUS to maxRange over extendingTime
+      local expansionDistance = maxRange - BASE_RADIUS
+      self.radius = BASE_RADIUS + tween.cubic(expansionDistance, self.currentTimer, extendingTime)
+
+      if (self.currentTimer >= extendingTime) then -- Reset to cooldown
         self.currentTimer = 0 -- Reset timer to start cooldown from 0
         self.mode = ExtensionMode.COOLDOWN
         self.collidedSprites = {} -- Reset this every expansion/cooldown cycle
       end
     else                          -- Cooldown
-      if (self.currentTimer >= cooldown) then
+      if (self.currentTimer >= cooldownTime) then
         -- Reset into extension mode
         self.currentTimer = 0 -- Reset timer to start extension from 0
         self.mode = ExtensionMode.EXTENDING
         -- Reset to t=0
-        self.radius = tween.cubic(range * frequency, 0, range)
+        self.radius = BASE_RADIUS
 
         -- Reassign center based on stored player reference
         self.cx = self.player:centerX()

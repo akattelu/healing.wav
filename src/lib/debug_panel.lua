@@ -29,9 +29,8 @@ function debugPanel.new(stats)
     statConfigs = {
       { name = "amplitude", label = "Damage", min = 0, max = 20, default = 1, step = 0.1 },
       { name = "wavelength", label = "Arc Length", min = 0, max = math.pi * 2, default = math.pi / 2, step = 0.1 },
-      { name = "frequency", label = "Speed", min = 50, max = 500, default = 200, step = 10 },
-      { name = "period", label = "Cooldown", min = 0.01, max = 2, default = 0.1, step = 0.01 },
-      { name = "range", label = "Duration", min = 0.1, max = 5, default = 1, step = 0.1 },
+      { name = "frequency", label = "Attack Speed", min = 0.5, max = 20, default = 1.5, step = 0.5 },
+      { name = "range", label = "Wave Distance", min = 50, max = 500, default = 200, step = 10 },
       { name = "movementSpeed", label = "Move Speed", min = 50, max = 500, default = 200, step = 10 },
       { name = "knockback", label = "Knockback", min = 0, max = 500, default = 150, step = 10 },
     }

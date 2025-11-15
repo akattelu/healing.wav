@@ -30,7 +30,7 @@ love .
 ```
 
 **Debug Panel**: Access the debug panel during gameplay by pressing ESC to pause, then clicking "Toggle Debug Panel". The debug panel allows you to:
-- Adjust base stat values (damage, arc length, speed, cooldown, duration, move speed, knockback)
+- Adjust base stat values (damage, arc length, attack speed, wave distance, move speed, knockback)
 - Modify stat multipliers
 - View final computed values
 - Toggle sound on/off via checkbox
@@ -80,8 +80,12 @@ The healing wave is the most complex mechanic:
 - Waves are directional arcs that emanate from the cleric
 - Wave direction is determined by player movement (8 directions + down default)
 - Waves have two modes: EXTENDING (visible arc expanding) and COOLDOWN (hidden)
-- Wave behavior is driven by stats (wavelength, range, frequency, period)
+- Wave behavior is driven by stats (wavelength, range, frequency)
 - Uses cubic easing for smooth expansion animation (see src/lib/tween.lua)
+- **Timing**: Attack cycle controlled by `frequency` stat (attacks per second)
+  - Cycle time = 1 / frequency
+  - EXTENDING phase = 60% of cycle time
+  - COOLDOWN phase = 40% of cycle time
 - **Rendering**: Draws 100 concentric arcs with alpha gradient (0.0 inner → 0.8 outer) in golden yellow (1, 0.9, 0.55)
 - **Collision detection**:
   - Checks if any of 4 corners of enemy bounding box fall within arc region
@@ -94,9 +98,8 @@ The healing wave is the most complex mechanic:
 Wave properties and player attributes are defined through stat metaphors:
 - `amplitude`: Damage dealt (base: 1)
 - `wavelength`: Arc length in radians (base: π/2)
-- `frequency`: Speed of expansion (base: 200)
-- `period`: Cooldown duration between waves (base: 0.1s) - inverse upgrade (lower is better)
-- `range`: Duration of wave extension (base: 1s)
+- `frequency`: Attack speed in attacks per second (base: 1.5) - controls full wave cycle timing
+- `range`: Wave distance in pixels (base: 200) - controls how far waves extend
 - `movementSpeed`: Player movement speed (base: 200)
 - `knockback`: Knockback impulse strength (base: 150)
 
@@ -167,5 +170,8 @@ To add a new scene (e.g., pause menu, game over screen):
 The wave expansion uses cubic easing from src/lib/tween.lua:
 - First half accelerates: `4x³`
 - Second half decelerates: `1 - (-2x+2)³/2`
-- Always starts from BASE_BIAS (64px)
-- Formula: `tween.cubic(dEnd, t, tEnd)` where dEnd = range × frequency, t = elapsed time, tEnd = range
+- Always starts from BASE_RADIUS (64px)
+- Expansion formula: `radius = BASE_RADIUS + tween.cubic(expansionDistance, t, extendingTime)`
+  - `expansionDistance = range - BASE_RADIUS` (how far to expand in pixels)
+  - `t = currentTimer` (elapsed time in current phase)
+  - `extendingTime = (1 / frequency) × 0.6` (60% of attack cycle)

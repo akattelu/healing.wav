@@ -5,9 +5,8 @@ function stats.new()
     -- Base stat values
     amplitude = 1,            -- Damage
     wavelength = math.pi / 2, -- Arc Length
-    frequency = 200,          -- Speed
-    period = 0.1,             -- Cooldown
-    range = 1,                -- Duration
+    frequency = 1.5,          -- Attack Speed (attacks per second)
+    range = 200,              -- Wave Distance (max radius in pixels)
     movementSpeed = 200,      -- Player movement speed
     knockback = 150,          -- Knockback impulse strength
 
@@ -16,7 +15,6 @@ function stats.new()
       amplitude = 1.0,
       wavelength = 1.0,
       frequency = 1.0,
-      period = 1.0,
       range = 1.0,
       movementSpeed = 1.0,
       knockback = 1.0,
@@ -26,12 +24,7 @@ function stats.new()
   -- Method to apply percentage-based upgrade
   function s:applyUpgrade(statName, percent)
     if self.multipliers[statName] then
-      -- For period (cooldown), lower is better, so we subtract the percentage
-      if statName == "period" then
-        self.multipliers[statName] = self.multipliers[statName] * (1 - percent / 100)
-      else
-        self.multipliers[statName] = self.multipliers[statName] * (1 + percent / 100)
-      end
+      self.multipliers[statName] = self.multipliers[statName] * (1 + percent / 100)
     end
   end
 
