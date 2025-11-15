@@ -3,11 +3,16 @@ local pause = {}
 local button = require "src.ui.button"
 
 function pause:load(resumeCallback, restartCallback, titleCallback, debugPanelToggleCallback)
+  -- Create fonts
+  self.titleFont = love.graphics.newFont(32)
+  self.buttonFont = love.graphics.newFont(20)
+
   -- Initialize buttons
   self.buttons = {
     button.new({
       text = "Resume",
       x = 0, y = 0, width = 300, height = 60,
+      font = self.buttonFont,
       action = function()
         if resumeCallback then
           resumeCallback()
@@ -17,6 +22,7 @@ function pause:load(resumeCallback, restartCallback, titleCallback, debugPanelTo
     button.new({
       text = "Restart Wave",
       x = 0, y = 0, width = 300, height = 60,
+      font = self.buttonFont,
       action = function()
         if restartCallback then
           restartCallback()
@@ -26,6 +32,7 @@ function pause:load(resumeCallback, restartCallback, titleCallback, debugPanelTo
     button.new({
       text = "Toggle Debug Panel",
       x = 0, y = 0, width = 300, height = 60,
+      font = self.buttonFont,
       action = function()
         if debugPanelToggleCallback then
           debugPanelToggleCallback()
@@ -35,6 +42,7 @@ function pause:load(resumeCallback, restartCallback, titleCallback, debugPanelTo
     button.new({
       text = "Return to Title",
       x = 0, y = 0, width = 300, height = 60,
+      font = self.buttonFont,
       action = function()
         if titleCallback then
           titleCallback()
@@ -70,9 +78,9 @@ function pause:draw()
 
   -- Draw "PAUSED" title
   love.graphics.setColor(1, 1, 1, 1)
-  local font = love.graphics.getFont()
+  love.graphics.setFont(self.titleFont)
   local titleText = "PAUSED"
-  local titleWidth = font:getWidth(titleText)
+  local titleWidth = self.titleFont:getWidth(titleText)
   love.graphics.print(titleText, screen_w / 2 - titleWidth / 2, menuStartY - 80)
 
   -- Draw buttons
