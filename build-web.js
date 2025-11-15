@@ -58,5 +58,14 @@ try {
   process.exit(1);
 }
 
+// Step 4: Apply post-build customizations
+console.log('\nApplying post-build customizations...');
+try {
+  execSync('node post-build.js', { stdio: 'inherit' });
+} catch (error) {
+  console.error('Error in post-build script:', error.message);
+  process.exit(1);
+}
+
 console.log('\n✓ Build complete! Output in dist/');
 console.log('To test locally, run: npm run serve');
