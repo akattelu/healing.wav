@@ -60,7 +60,6 @@ function battle:load()
   local settings = require "src.lib.settings"
   local cleric = require "src.entity.cleric"
   local wave = require "src.entity.wave"
-  local cursor_debug = require "src.entity.cursor_debug"
   local pauseScene = require "src.scene.pause"
 
   -- Parse settings early so sound module can access it
@@ -74,7 +73,6 @@ function battle:load()
   self.cl = cleric("lpc/cleric/walk.png", self.stats, 10) -- 10 starting health
   self.skeletons = {}
   self.wave = wave.new(self.stats, self.cl)
-  self.cursor_debug = cursor_debug()
 
   -- Collision tracking for skeleton-player damage (to prevent multiple hits per frame)
   self.skeletonCollisionCooldowns = {} -- Maps skeleton -> cooldown timer
@@ -216,7 +214,6 @@ function battle:draw()
     s:draw()
   end
   self.wave:draw()
-  self.cursor_debug:draw()
 
   -- Draw pause scene overlay if paused
   if self.paused then
