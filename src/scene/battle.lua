@@ -48,7 +48,9 @@ function battle:spawnSkeletons()
   for _ = 1, totalSkeletons do
     local randomSide = love.math.random(1, 4)
     local x, y = sides[randomSide]()
-    local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y, skeletonHealth, skeletonSpeed)
+    -- Apply ±20% random speed variation to each skeleton
+    local randomizedSpeed = skeletonSpeed * (0.8 + love.math.random() * 0.4)
+    local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y, skeletonHealth, randomizedSpeed)
     skele:load()
     table.insert(self.skeletons, skele)
   end
