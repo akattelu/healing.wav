@@ -24,7 +24,6 @@ function love.load()
   local pauseScene = require "src.scene.pause"
   local gameOverScene = require "src.scene.game_over"
 
-  -- Parse settings early so sound module can access it
   S.settings = settings.parse()
 
   -- Set default filter mode for crisp pixel art

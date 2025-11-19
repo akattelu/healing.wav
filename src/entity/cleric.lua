@@ -1,5 +1,4 @@
 local health = require "src.entity.health"
-local sound = require "src.lib.sound"
 
 local HIT_DURATION = 0.5
 local HIT_RATE_LIMIT = 0.25 -- Minimum seconds between hits (4 hits/second max)
@@ -53,9 +52,6 @@ return function(spritePath, stats, initialHealth)
     hitTimer = 0,
     lastHitTime = 0, -- timestamp for rate limiting
 
-    -- Sound
-    hitSound = nil,
-
     --- Load
     load = function(self)
       self.sheet = love.graphics.newImage(self.spritePath)
@@ -70,8 +66,6 @@ return function(spritePath, stats, initialHealth)
       end
       -- Default animation is facing down
       self.frames[Direction.IDLE] = { self.frames[Direction.DOWN][1] }
-
-      self.hitSound = sound.beep(800, 0.2)
     end,
 
     --- Update
@@ -128,13 +122,7 @@ return function(spritePath, stats, initialHealth)
         if (self.hitTimer > HIT_DURATION) then
           self.hitTimer = 0
           self.hit = false
-          self.hitSound:stop()
         end
-      end
-
-      -- Stop sound immediately if sound is disabled
-      if not S.settings.soundEnabled and self.hitSound:isPlaying() then
-        self.hitSound:stop()
       end
     end,
 
@@ -201,9 +189,6 @@ return function(spritePath, stats, initialHealth)
         self.hit = true
         self.hitTimer = 0
         self.lastHitTime = currentTime
-        if S.settings.soundEnabled then
-          self.hitSound:play()
-        end
         self.health:damage(dmg)
       end
     end

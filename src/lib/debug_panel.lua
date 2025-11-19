@@ -1,6 +1,5 @@
 --- Debug panel for adjusting game stats in real-time (Tabbed UI)
 local numberControl = require "src.ui.number_control"
-local checkbox = require "src.ui.checkbox"
 local tab = require "src.ui.tab"
 
 local debugPanel = {}
@@ -90,18 +89,6 @@ function debugPanel.new(stats)
   function panel:load()
     self:createControls()
 
-    -- Create sound checkbox
-    self.soundCheckbox = checkbox.new({
-      label = "Sound",
-      x = self.x + self.width - 80,
-      y = self.y + self.padding + 2,
-      checked = S.settings.soundEnabled,
-      font = self.smallFont,
-      onChange = function(checked)
-        S.settings.soundEnabled = checked
-      end
-    })
-
     -- Create tab container
     self.tabContainer = tab.new({
       tabs = {
@@ -119,14 +106,6 @@ function debugPanel.new(stats)
 
   function panel:update(dt)
     if not self.visible then return end
-
-    -- Update checkbox
-    self.soundCheckbox:update(dt)
-
-    -- Sync checkbox state with settings
-    if self.soundCheckbox.checked ~= S.settings.soundEnabled then
-      self.soundCheckbox:setChecked(S.settings.soundEnabled)
-    end
 
     -- Update controls for active tab
     local activeTab = self.tabContainer:getActiveTab()
@@ -217,9 +196,6 @@ function debugPanel.new(stats)
     love.graphics.setColor(0.9, 0.9, 1)
     love.graphics.print("Debug Panel", self.x + self.padding, self.y + self.padding)
 
-    -- Draw sound toggle checkbox
-    self.soundCheckbox:draw()
-
     -- Draw tabs
     self.tabContainer:draw()
 
@@ -266,11 +242,6 @@ function debugPanel.new(stats)
 
   function panel:mousepressed(x, y, button)
     if not self.visible then return false end
-
-    -- Check sound checkbox click
-    if self.soundCheckbox:mousepressed(x, y, button) then
-      return true
-    end
 
     -- Check tab clicks
     if self.tabContainer:mousepressed(x, y, button) then

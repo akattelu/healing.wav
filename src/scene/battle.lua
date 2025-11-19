@@ -65,7 +65,6 @@ function battle:load()
   local wave = require "src.entity.wave"
   local pauseScene = require "src.scene.pause"
 
-  -- Parse settings early so sound module can access it
   if not S.settings then
     S.settings = settings.parse()
   end
