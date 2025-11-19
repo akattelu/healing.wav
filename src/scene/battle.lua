@@ -187,11 +187,11 @@ function battle:update(dt)
       -- Increment wave counter (tracks number of waves completed)
       S.currentWave = S.currentWave + 1
 
-      if S.currentWave < 10 then
+      if S.currentWave < 5 then
         -- Progress to reward selection screen
         S.sceneManager:switch("reward_select")
       else
-        -- Player has completed all 10 waves - go to credits
+        -- Player has completed all 5 waves - go to credits
         S.sceneManager:switch("credits")
       end
     end

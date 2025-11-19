@@ -25,7 +25,7 @@ function WaveIntro:draw()
   local screenHeight = love.graphics.getHeight()
 
   local font = love.graphics.getFont()
-  local waveText = "Wave " .. self.waveNumber .. " / 10"
+  local waveText = "Wave " .. self.waveNumber .. " / 5"
   local textWidth = font:getWidth(waveText)
   local textHeight = font:getHeight()
 
