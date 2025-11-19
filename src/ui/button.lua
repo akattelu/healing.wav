@@ -67,13 +67,30 @@ function button.new(args)
 
     if self.description then
       -- Multi-line mode: fixed offsets
-      love.graphics.print(self.text, self.x + (self.width - textWidth) / 2, self.y + 25)
+      love.graphics.print(self.text, self.x + (self.width - textWidth) / 2, self.y + 20)
 
-      -- Description text
+      -- Description text (supports multi-line with \n)
       love.graphics.setFont(self.descriptionFont)
-      love.graphics.setColor(self.descriptionColor[1], self.descriptionColor[2], self.descriptionColor[3], self.descriptionColor[4] or 1)
-      local descWidth = self.descriptionFont:getWidth(self.description)
-      love.graphics.print(self.description, self.x + (self.width - descWidth) / 2, self.y + 60)
+
+      -- Split description by newlines
+      local lines = {}
+      for line in self.description:gmatch("[^\n]+") do
+        table.insert(lines, line)
+      end
+
+      -- Draw each line
+      local lineHeight = self.descriptionFont:getHeight()
+      local startY = self.y + 50
+      for i, line in ipairs(lines) do
+        -- Check if line starts with negative sign for trade-off styling
+        if line:match("^%-") then
+          love.graphics.setColor(1.0, 0.5, 0.5, self.descriptionColor[4] or 1) -- Red for penalties
+        else
+          love.graphics.setColor(self.descriptionColor[1], self.descriptionColor[2], self.descriptionColor[3], self.descriptionColor[4] or 1)
+        end
+        local lineWidth = self.descriptionFont:getWidth(line)
+        love.graphics.print(line, self.x + (self.width - lineWidth) / 2, startY + (i - 1) * (lineHeight + 2))
+      end
     else
       -- Single-line mode: centered
       love.graphics.print(self.text,

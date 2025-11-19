@@ -19,11 +19,16 @@ function reward_select:load()
     S.rewardSelectionNumber = 1
   end
 
-  -- Header text (shows the wave just completed and selection progress)
-  self.headerText = "Wave " .. S.currentWave .. " Complete! - Reward " .. S.rewardSelectionNumber .. "/3"
+  -- Determine tier based on selection number (1=common, 2=rare, 3=legendary)
+  local tiers = {"common", "rare", "legendary"}
+  self.currentTier = tiers[S.rewardSelectionNumber]
 
-  -- Select 3 random rewards
-  self.rewards = self:selectRandomRewards(3)
+  -- Header text (shows the wave and tier)
+  local tierDisplay = string.upper(self.currentTier)
+  self.headerText = "Wave " .. S.currentWave .. " Complete! - " .. tierDisplay .. " Reward"
+
+  -- Select 3 random rewards from current tier
+  self.rewards = self:selectRandomRewardsByTier(self.currentTier, 3)
 
   -- Create buttons for each reward
   self.buttons = {}
@@ -34,9 +39,38 @@ function reward_select:load()
 
   for i = 1, 3 do
     local reward = self.rewards[i]
+
+    -- Build button text with primary stat and trade-off display
+    local statNames = {
+      amplitude = "Damage",
+      wavelength = "Arc Width",
+      frequency = "Attack Speed",
+      range = "Range",
+      movementSpeed = "Movement Speed",
+      knockback = "Knockback"
+    }
+
+    local primaryStatName = statNames[reward.stat] or reward.stat
+    local buttonText = reward.name .. "\n+" .. reward.percent .. "% " .. primaryStatName
+    local fullDescription = reward.description
+
+    -- Add trade-off to description if it exists
+    if reward.tradeoff then
+      local tradeoffName = statNames[reward.tradeoff.stat] or reward.tradeoff.stat
+      buttonText = buttonText .. " / " .. reward.tradeoff.percent .. "% " .. tradeoffName
+    end
+
+    -- Determine tier color
+    local tierColors = {
+      common = {0.7, 0.7, 0.8},
+      rare = {0.4, 0.6, 1.0},
+      legendary = {1.0, 0.8, 0.2}
+    }
+    local tierColor = tierColors[self.currentTier] or {1, 1, 1}
+
     self.buttons[i] = button.new({
-      text = "+" .. reward.percent .. "% " .. reward.name,
-      description = reward.description,
+      text = buttonText,
+      description = fullDescription,
       width = buttonWidth,
       height = buttonHeight,
       x = (self.screenW - buttonWidth) / 2,
@@ -44,6 +78,7 @@ function reward_select:load()
       font = self.buttonFont,
       descriptionFont = self.descFont,
       payload = reward,
+      borderColor = tierColor,
       action = function()
         -- Apply the selected upgrade
         self:applyUpgrade(reward)
@@ -64,11 +99,13 @@ function reward_select:load()
   end
 end
 
-function reward_select:selectRandomRewards(count)
-  -- Create a copy of available upgrades
+function reward_select:selectRandomRewardsByTier(tier, count)
+  -- Filter upgrades by tier
   local available = {}
   for _, upgrade in ipairs(STAT_UPGRADES) do
-    table.insert(available, upgrade)
+    if upgrade.tier == tier then
+      table.insert(available, upgrade)
+    end
   end
 
   -- Shuffle and select
@@ -132,6 +169,11 @@ function reward_select:applyUpgrade(reward)
   -- Apply percentage-based upgrade to the stat
   if S.stats then
     S.stats:applyUpgrade(reward.stat, reward.percent)
+
+    -- Apply trade-off if it exists
+    if reward.tradeoff then
+      S.stats:applyUpgrade(reward.tradeoff.stat, reward.tradeoff.percent)
+    end
   end
 end
 

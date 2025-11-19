@@ -10,12 +10,12 @@ function battle:initializeSpawnConfig()
   self.skeletons = {}
 
   -- Calculate wave-based difficulty
-  local baseCount = 10
+  local baseCount = 100
   local baseHealth = 3
   local baseSpeed = 50
 
-  -- Exponential skeleton count: 20 * 1.7^wave (S.currentWave is 0-indexed)
-  local totalSkeletons = math.floor(baseCount * math.pow(1.7, S.currentWave))
+  -- Exponential skeleton count: 100 * 1.4^wave (S.currentWave is 0-indexed)
+  local totalSkeletons = math.floor(baseCount * math.pow(1.4, S.currentWave))
 
   -- Aggressive health scaling: base + 2.5 per wave (S.currentWave is 0-indexed)
   local skeletonHealth = math.floor(baseHealth + S.currentWave * 2.5)
@@ -54,7 +54,9 @@ function battle:initializeSpawnConfig()
   -- Initialize spawn state
   self.skeletonSpawnTimer = 0
   self.skeletonsSpawned = 0
-  self.spawnInterval = 10 / totalSkeletons -- Spawn all skeletons over 10 seconds
+  -- Spawn window scales with enemy count (min 10s, max 30s)
+  local spawnWindow = math.min(30, math.max(10, 10 + totalSkeletons / 20))
+  self.spawnInterval = spawnWindow / totalSkeletons
 end
 
 function battle:load()
@@ -118,7 +120,7 @@ end
 function battle:update(dt)
   -- Only update game logic when not paused
   if not self.paused then
-    -- Gradual skeleton spawning over 10 seconds
+    -- Gradual skeleton spawning (timing based on enemy count)
     if self.skeletonsSpawned < self.spawnConfig.totalSkeletons then
       self.skeletonSpawnTimer = self.skeletonSpawnTimer + dt
 
