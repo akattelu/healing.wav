@@ -3,8 +3,7 @@ local tbl = require "src.lib.table"
 
 local battle = {}
 
-function battle:spawnSkeletons()
-  local skeleton = require "src.entity.skeleton"
+function battle:initializeSpawnConfig()
   local screen_w, screen_h = love.window.getMode()
 
   -- Clear existing skeletons
@@ -44,16 +43,18 @@ function battle:spawnSkeletons()
     end
   }
 
-  -- Randomly distribute skeletons across all 4 sides
-  for _ = 1, totalSkeletons do
-    local randomSide = love.math.random(1, 4)
-    local x, y = sides[randomSide]()
-    -- Apply ±20% random speed variation to each skeleton
-    local randomizedSpeed = skeletonSpeed * (0.8 + love.math.random() * 0.4)
-    local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y, skeletonHealth, randomizedSpeed)
-    skele:load()
-    table.insert(self.skeletons, skele)
-  end
+  -- Store spawn configuration for gradual spawning
+  self.spawnConfig = {
+    totalSkeletons = totalSkeletons,
+    skeletonHealth = skeletonHealth,
+    skeletonSpeed = skeletonSpeed,
+    sides = sides
+  }
+
+  -- Initialize spawn state
+  self.skeletonSpawnTimer = 0
+  self.skeletonsSpawned = 0
+  self.spawnInterval = 10 / totalSkeletons -- Spawn all skeletons over 10 seconds
 end
 
 function battle:load()
@@ -108,8 +109,8 @@ function battle:load()
   self.cl.x = (screen_w - self.cl.frameWidth) / 2
   self.cl.y = (screen_h - self.cl.frameHeight) / 2
 
-  -- Spawn skeletons for this wave
-  self:spawnSkeletons()
+  -- Initialize spawn configuration for gradual spawning
+  self:initializeSpawnConfig()
 
   self.wave:load()
 end
@@ -117,6 +118,31 @@ end
 function battle:update(dt)
   -- Only update game logic when not paused
   if not self.paused then
+    -- Gradual skeleton spawning over 10 seconds
+    if self.skeletonsSpawned < self.spawnConfig.totalSkeletons then
+      self.skeletonSpawnTimer = self.skeletonSpawnTimer + dt
+
+      -- Spawn skeletons at regular intervals
+      while self.skeletonSpawnTimer >= self.spawnInterval and
+            self.skeletonsSpawned < self.spawnConfig.totalSkeletons do
+        -- Create one skeleton
+        local skeleton = require "src.entity.skeleton"
+        local randomSide = love.math.random(1, 4)
+        local x, y = self.spawnConfig.sides[randomSide]()
+
+        -- Apply ±20% random speed variation to each skeleton
+        local randomizedSpeed = self.spawnConfig.skeletonSpeed * (0.8 + love.math.random() * 0.4)
+        local skele = skeleton("lpc/skeleton/walk.png", self.cl, x, y,
+                               self.spawnConfig.skeletonHealth, randomizedSpeed)
+        skele:load()
+        table.insert(self.skeletons, skele)
+
+        -- Update spawn tracking
+        self.skeletonsSpawned = self.skeletonsSpawned + 1
+        self.skeletonSpawnTimer = self.skeletonSpawnTimer - self.spawnInterval
+      end
+    end
+
     self.cl:update(dt)
     for _, s in pairs(self.skeletons) do
       s:update(dt)
@@ -183,7 +209,8 @@ function battle:update(dt)
     end
 
     -- Check for wave completion (all skeletons defeated)
-    if #self.skeletons == 0 then
+    -- Only check after all skeletons have spawned
+    if self.skeletonsSpawned >= self.spawnConfig.totalSkeletons and #self.skeletons == 0 then
       -- Increment wave counter (tracks number of waves completed)
       S.currentWave = S.currentWave + 1
 
