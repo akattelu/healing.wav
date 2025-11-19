@@ -3,7 +3,7 @@ local stats = {}
 function stats.new()
   local s = {
     -- Base stat values
-    amplitude = 1,            -- Damage
+    amplitude = 3,            -- Damage
     wavelength = math.pi / 2, -- Arc Length
     frequency = 1.5,          -- Attack Speed (attacks per second)
     range = 200,              -- Wave Distance (max radius in pixels)

@@ -11,9 +11,9 @@ function battle:spawnSkeletons()
   self.skeletons = {}
 
   -- Calculate wave-based difficulty
-  local baseCount = 20
+  local baseCount = 10
   local baseHealth = 3
-  local baseSpeed = 20
+  local baseSpeed = 50
 
   -- Exponential skeleton count: 20 * 1.7^wave (S.currentWave is 0-indexed)
   local totalSkeletons = math.floor(baseCount * math.pow(1.7, S.currentWave))
@@ -188,6 +188,8 @@ function battle:update(dt)
       S.currentWave = S.currentWave + 1
 
       if S.currentWave < 5 then
+        -- Initialize reward selection counter (player gets 3 sequential selections)
+        S.rewardSelectionNumber = 1
         -- Progress to reward selection screen
         S.sceneManager:switch("reward_select")
       else

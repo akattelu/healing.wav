@@ -14,8 +14,13 @@ function reward_select:load()
   self.buttonFont = love.graphics.newFont(20)
   self.descFont = love.graphics.newFont(16)
 
-  -- Header text (shows the wave just completed)
-  self.headerText = "Wave " .. S.currentWave .. " Complete!"
+  -- Initialize selection counter if not set
+  if not S.rewardSelectionNumber then
+    S.rewardSelectionNumber = 1
+  end
+
+  -- Header text (shows the wave just completed and selection progress)
+  self.headerText = "Wave " .. S.currentWave .. " Complete! - Reward " .. S.rewardSelectionNumber .. "/3"
 
   -- Select 3 random rewards
   self.rewards = self:selectRandomRewards(3)
@@ -42,8 +47,18 @@ function reward_select:load()
       action = function()
         -- Apply the selected upgrade
         self:applyUpgrade(reward)
-        -- Transition to wave intro (wave counter already incremented in battle scene)
-        S.sceneManager:switch("wave_intro")
+
+        -- Increment selection counter
+        S.rewardSelectionNumber = S.rewardSelectionNumber + 1
+
+        -- Check if player has made all 3 selections
+        if S.rewardSelectionNumber <= 3 then
+          -- Reload reward_select with new random rewards
+          S.sceneManager:switch("reward_select")
+        else
+          -- All 3 selections complete - transition to wave intro
+          S.sceneManager:switch("wave_intro")
+        end
       end
     })
   end
