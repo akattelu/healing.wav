@@ -1,5 +1,6 @@
 -- Battle scene - main gameplay
 local tbl = require "src.lib.table"
+local background = require "src.lib.background"
 
 local battle = {}
 
@@ -114,6 +115,10 @@ function battle:load()
   self:initializeSpawnConfig()
 
   self.wave:load()
+
+  -- Load background
+  self.background = background.new()
+  self.background:load()
 end
 
 function battle:update(dt)
@@ -239,6 +244,9 @@ function battle:update(dt)
 end
 
 function battle:draw()
+  -- Draw background first
+  self.background:draw()
+
   self.cl:draw()
   for _, s in pairs(self.skeletons) do
     s:draw()
