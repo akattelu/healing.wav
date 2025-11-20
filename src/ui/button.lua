@@ -62,12 +62,15 @@ function button.new(args)
     -- Button text (main)
     love.graphics.setFont(self.font)
     love.graphics.setColor(self.textColor[1], self.textColor[2], self.textColor[3], self.textColor[4] or 1)
-    local textWidth = self.font:getWidth(self.text)
     local textHeight = self.font:getHeight()
 
     if self.description then
-      -- Multi-line mode: fixed offsets
-      love.graphics.print(self.text, self.x + (self.width - textWidth) / 2, self.y + 20)
+      -- Multi-line mode: use printf for text wrapping with padding
+      local padding = 20
+      local textLimit = self.width - (padding * 2)
+
+      -- Use printf with center alignment
+      love.graphics.printf(self.text, self.x + padding, self.y + 15, textLimit, "center")
 
       -- Description text (supports multi-line with \n)
       love.graphics.setFont(self.descriptionFont)
@@ -80,7 +83,7 @@ function button.new(args)
 
       -- Draw each line
       local lineHeight = self.descriptionFont:getHeight()
-      local startY = self.y + 50
+      local startY = self.y + 60
       for i, line in ipairs(lines) do
         -- Check if line starts with negative sign for trade-off styling
         if line:match("^%-") then
@@ -88,11 +91,11 @@ function button.new(args)
         else
           love.graphics.setColor(self.descriptionColor[1], self.descriptionColor[2], self.descriptionColor[3], self.descriptionColor[4] or 1)
         end
-        local lineWidth = self.descriptionFont:getWidth(line)
-        love.graphics.print(line, self.x + (self.width - lineWidth) / 2, startY + (i - 1) * (lineHeight + 2))
+        love.graphics.printf(line, self.x + padding, startY + (i - 1) * (lineHeight + 4), textLimit, "center")
       end
     else
       -- Single-line mode: centered
+      local textWidth = self.font:getWidth(self.text)
       love.graphics.print(self.text,
         self.x + (self.width - textWidth) / 2,
         self.y + (self.height - textHeight) / 2)

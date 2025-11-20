@@ -32,8 +32,8 @@ function reward_select:load()
 
   -- Create buttons for each reward
   self.buttons = {}
-  local buttonWidth = 400
-  local buttonHeight = 100
+  local buttonWidth = 600
+  local buttonHeight = 140
   local buttonSpacing = 30
   local startY = self.screenH / 2 - (3 * buttonHeight + 2 * buttonSpacing) / 2
 
