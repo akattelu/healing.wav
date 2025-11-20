@@ -6,6 +6,7 @@ package-lock.json
 # Build output
 dist/
 *.love
+healingwave-web.zip
 
 # macOS
 .DS_Store

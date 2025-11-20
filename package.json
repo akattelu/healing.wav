@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build:web": "node build-web.js",
+    "build:zip": "cd dist && zip -r ../healingwave-web.zip . && cd ..",
+    "build": "npm run build:web && npm run build:zip",
     "serve": "http-server dist -p 8000 -o",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
