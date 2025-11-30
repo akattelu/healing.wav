@@ -13,6 +13,11 @@ function title:load()
   -- Button font
   self.buttonFont = love.graphics.newFont(24)
 
+  -- Instructions font and text
+  self.instructionsFont = love.graphics.newFont(18)
+  self.instructionsText1 = "WASD to move"
+  self.instructionsText2 = "ESC to pause"
+
   -- Play button
   self.playButton = button.new({
     text = "Play",
@@ -62,6 +67,17 @@ function title:draw()
   -- Draw buttons
   self.playButton:draw()
   self.creditsButton:draw()
+
+  -- Draw instructions
+  love.graphics.setFont(self.instructionsFont)
+  love.graphics.setColor(0.7, 0.7, 0.8)
+
+  local instructionsY = self.screenH / 2 + 210
+  local instructions1Width = self.instructionsFont:getWidth(self.instructionsText1)
+  local instructions2Width = self.instructionsFont:getWidth(self.instructionsText2)
+
+  love.graphics.print(self.instructionsText1, (self.screenW - instructions1Width) / 2, instructionsY)
+  love.graphics.print(self.instructionsText2, (self.screenW - instructions2Width) / 2, instructionsY + 25)
 
   -- Reset color
   love.graphics.setColor(1, 1, 1)
